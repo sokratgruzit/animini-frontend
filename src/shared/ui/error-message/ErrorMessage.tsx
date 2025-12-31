@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { BiErrorCircle } from "react-icons/bi";
+import { motion } from 'framer-motion';
+import { BiErrorCircle } from 'react-icons/bi';
 
 interface ErrorMessageProps {
   message?: string;

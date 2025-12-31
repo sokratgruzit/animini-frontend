@@ -1,10 +1,10 @@
-import axios from "axios";
+import axios from 'axios';
 
 /**
  * Pre-configured axios instance for backend communication
  */
 export const $api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   withCredentials: true, // Required for cookies/sessions
 });
 

@@ -1,5 +1,5 @@
-import { type ReactNode } from "react";
-import { cn } from "../../lib/clsx";
+import { type ReactNode } from 'react';
+import { cn } from '../../lib/clsx';
 
 interface ContainerProps {
   children: ReactNode;
@@ -22,8 +22,8 @@ export const Container = ({
   return (
     <div
       className={cn(
-        "w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
-        isCentered && "min-h-screen flex flex-col items-center justify-center",
+        'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
+        isCentered && 'min-h-screen flex flex-col items-center justify-center',
         className
       )}
     >
@@ -32,4 +32,4 @@ export const Container = ({
   );
 };
 
-Container.displayName = "Container";
+Container.displayName = 'Container';

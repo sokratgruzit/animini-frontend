@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 // import Poster1 from '../../shared/assets/images/poster1.jpg'; // Pending assets setup
 
 /**
@@ -28,17 +28,17 @@ export const InteractiveCube = () => {
             scale: 0.5,
             opacity: 0,
             rotateY: 90,
-            x: "-50%",
-            y: "-50%",
+            x: '-50%',
+            y: '-50%',
           }}
-          animate={{ scale: 1, opacity: 1, rotateY: 0, x: "-50%", y: "-50%" }}
+          animate={{ scale: 1, opacity: 1, rotateY: 0, x: '-50%', y: '-50%' }}
           exit={{ scale: 0.5, opacity: 0, rotateY: -90 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
           className="fixed z-50 w-64 h-64 shadow-[0_0_50px_rgba(79,70,229,0.4)] rounded-2xl overflow-hidden border border-white/20"
           style={{
-            top: "50%",
-            left: "50%",
-            perspective: "1000px",
+            top: '50%',
+            left: '50%',
+            perspective: '1000px',
           }}
         >
           <img

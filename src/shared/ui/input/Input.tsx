@@ -1,5 +1,5 @@
-import { forwardRef, type InputHTMLAttributes } from "react";
-import { cn } from "../../lib/clsx";
+import { forwardRef, type InputHTMLAttributes } from 'react';
+import { cn } from '../../lib/clsx';
 
 /**
  * Props for the custom Input component.
@@ -30,11 +30,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           className={cn(
             // Base styles
-            "px-4 py-3 bg-white/5 border border-white/10 rounded-xl outline-none transition-all duration-200",
-            "focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 placeholder:text-gray-600 text-white",
+            'px-4 py-3 bg-white/5 border border-white/10 rounded-xl outline-none transition-all duration-200',
+            'focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 placeholder:text-gray-600 text-white',
             // Error styles
             error &&
-              "border-red-500/50 focus:border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.1)]",
+              'border-red-500/50 focus:border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.1)]',
             className
           )}
           {...props}
@@ -51,4 +51,4 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
-Input.displayName = "Input";
+Input.displayName = 'Input';

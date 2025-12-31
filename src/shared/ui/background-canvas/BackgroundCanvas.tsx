@@ -28,10 +28,10 @@ const VoxelField = () => {
 
         // Position each voxel
         dummy.position.set(x - rows / 2, y * 0.5, z - cols / 2);
-        
+
         // Dynamic rotation based on position and time
         dummy.rotation.y = time * 0.5 + (x + z) * 0.1;
-        
+
         // Update matrix
         dummy.updateMatrix();
         meshRef.current.setMatrixAt(i++, dummy.matrix);
@@ -41,13 +41,17 @@ const VoxelField = () => {
   });
 
   return (
-    <instancedMesh ref={meshRef} args={[null as any, null as any, count]} castShadow>
+    <instancedMesh
+      ref={meshRef}
+      args={[null as any, null as any, count]}
+      castShadow
+    >
       {/* Box geometry with small scale for high-tech look */}
       <boxGeometry args={[0.4, 0.4, 0.4]} />
-      <meshStandardMaterial 
-        color="#4f46e5" 
-        metalness={0.8} 
-        roughness={0.2} 
+      <meshStandardMaterial
+        color="#4f46e5"
+        metalness={0.8}
+        roughness={0.2}
         emissive="#1e1b4b"
         emissiveIntensity={0.5}
       />
@@ -58,24 +62,24 @@ const VoxelField = () => {
 export const BackgroundCanvas = () => {
   return (
     <div className="fixed inset-0 -z-10 bg-[#020617] overflow-hidden pointer-events-none">
-      <Canvas 
-        shadows 
+      <Canvas
+        shadows
         camera={{ position: [15, 10, 15], fov: 45 }}
         gl={{ antialias: true }}
       >
         <color attach="background" args={['#020617']} />
-        
+
         {/* Cinematic Lighting */}
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1.5} color="#6366f1" />
-        <spotLight 
-          position={[-10, 20, 10]} 
-          angle={0.2} 
-          penumbra={1} 
-          intensity={2} 
-          castShadow 
+        <spotLight
+          position={[-10, 20, 10]}
+          angle={0.2}
+          penumbra={1}
+          intensity={2}
+          castShadow
         />
-        
+
         {/* Fog adds distance depth */}
         <fog attach="fog" args={['#020617', 15, 35]} />
 

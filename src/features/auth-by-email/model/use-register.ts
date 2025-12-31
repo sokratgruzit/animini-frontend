@@ -17,7 +17,7 @@ export const useRegister = () => {
       const { confirmPassword, ...registerDto } = data;
       return registerRequest(registerDto);
     },
-    
+
     // On success, we update the Redux store with received user data
     onSuccess: (userData) => {
       dispatch(setAuth(userData));
@@ -26,7 +26,10 @@ export const useRegister = () => {
 
     // Global error handling for this mutation
     onError: (error: any) => {
-      console.error('Registration failed:', error.response?.data?.message || error.message);
-    }
+      console.error(
+        'Registration failed:',
+        error.response?.data?.message || error.message
+      );
+    },
   });
 };

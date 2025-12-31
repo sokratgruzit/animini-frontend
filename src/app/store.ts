@@ -1,5 +1,5 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { userSlice } from "../entities/user/model/slice";
+import { configureStore } from '@reduxjs/toolkit';
+import { userSlice } from '../entities/user/model/slice';
 
 /**
  * Global Redux Store configuration

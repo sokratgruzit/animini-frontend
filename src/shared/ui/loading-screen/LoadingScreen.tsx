@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 
 /**
  * Fullscreen Preloader with smooth Framer Motion transitions.
@@ -10,21 +10,21 @@ export const LoadingScreen = () => {
       // Smooth fade-out when component is unmounted
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.8, ease: "easeInOut" }}
+      transition={{ duration: 0.8, ease: 'easeInOut' }}
       className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-[#020617]"
     >
       <div className="relative flex items-center justify-center">
         {/* Animated outer ring */}
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
           className="w-24 h-24 border-t-2 border-b-2 border-indigo-500 rounded-full"
         />
 
         {/* Animated inner pulse */}
         <motion.div
           animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute w-12 h-12 bg-indigo-600/30 rounded-full blur-xl"
         />
 

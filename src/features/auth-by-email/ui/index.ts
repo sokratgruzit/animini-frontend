@@ -1,1 +1,1 @@
-export * from "./register-form/RegisterForm";
+export * from './register-form/RegisterForm';

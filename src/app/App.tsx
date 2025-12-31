@@ -1,12 +1,12 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AnimatePresence } from "framer-motion";
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AnimatePresence } from 'framer-motion';
 
-import { type RootState } from "./store";
-import { setAppReady } from "../entities/user/model/slice";
+import { type RootState } from './store';
+import { setAppReady } from '../entities/user/model/slice';
 
-import { LoadingScreen, BackgroundCanvas } from "../shared/ui";
-import { AuthPage } from "../pages";
+import { LoadingScreen, BackgroundCanvas } from '../shared/ui';
+import { AuthPage } from '../pages';
 
 const App = () => {
   const dispatch = useDispatch();

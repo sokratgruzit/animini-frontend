@@ -1,8 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
-import { useDispatch } from "react-redux";
-import { loginRequest } from "../api/login-request";
-import { setAuth } from "../../../entities/user";
-import { type LoginSchema } from "./login-schema";
+import { useMutation } from '@tanstack/react-query';
+import { useDispatch } from 'react-redux';
+import { loginRequest } from '../api/login-request';
+import { setAuth } from '../../../entities/user';
+import { type LoginSchema } from './login-schema';
 
 /**
  * Custom hook for handling login logic.
@@ -17,12 +17,12 @@ export const useLogin = () => {
     onSuccess: (userData) => {
       // Dispatch user data to global Redux store
       dispatch(setAuth(userData));
-      console.log("Login successful");
+      console.log('Login successful');
     },
 
     onError: (error: any) => {
       console.error(
-        "Login error:",
+        'Login error:',
         error.response?.data?.message || error.message
       );
     },

@@ -1,16 +1,16 @@
-import { type ReactNode } from "react";
-import { motion, type HTMLMotionProps } from "framer-motion";
-import { cn } from "../../lib/clsx";
+import { type ReactNode } from 'react';
+import { motion, type HTMLMotionProps } from 'framer-motion';
+import { cn } from '../../lib/clsx';
 
 /**
  * Props for the Reusable Button.
  * We extend HTMLMotionProps instead of React.ButtonHTMLAttributes
  * to avoid type conflicts with Framer Motion events.
  */
-interface ButtonProps extends HTMLMotionProps<"button"> {
+interface ButtonProps extends HTMLMotionProps<'button'> {
   children: ReactNode;
   isLoading?: boolean;
-  variant?: "primary" | "secondary" | "outline";
+  variant?: 'primary' | 'secondary' | 'outline';
 }
 
 /**
@@ -20,17 +20,17 @@ interface ButtonProps extends HTMLMotionProps<"button"> {
 export const Button = ({
   children,
   isLoading,
-  variant = "primary",
+  variant = 'primary',
   className,
   disabled,
   ...props
 }: ButtonProps) => {
   const variants = {
     primary:
-      "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20",
-    secondary: "bg-white/10 hover:bg-white/15 text-gray-200",
+      'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20',
+    secondary: 'bg-white/10 hover:bg-white/15 text-gray-200',
     outline:
-      "bg-transparent border border-white/10 hover:border-white/20 text-gray-300",
+      'bg-transparent border border-white/10 hover:border-white/20 text-gray-300',
   };
 
   return (
@@ -41,9 +41,9 @@ export const Button = ({
       // Prevent interactions during loading or when disabled
       disabled={isLoading || disabled}
       className={cn(
-        "relative w-full py-3 px-6 rounded-xl font-bold transition-all duration-200",
-        "flex justify-center items-center gap-2 overflow-hidden",
-        "disabled:opacity-50 disabled:cursor-not-allowed",
+        'relative w-full py-3 px-6 rounded-xl font-bold transition-all duration-200',
+        'flex justify-center items-center gap-2 overflow-hidden',
+        'disabled:opacity-50 disabled:cursor-not-allowed',
         variants[variant],
         className
       )}
@@ -63,4 +63,4 @@ export const Button = ({
   );
 };
 
-Button.displayName = "Button";
+Button.displayName = 'Button';

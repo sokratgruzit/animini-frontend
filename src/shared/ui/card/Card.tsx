@@ -1,8 +1,8 @@
-import { type ReactNode } from "react";
-import { motion, type HTMLMotionProps } from "framer-motion";
-import { cn } from "../../lib/clsx";
+import { type ReactNode } from 'react';
+import { motion, type HTMLMotionProps } from 'framer-motion';
+import { cn } from '../../lib/clsx';
 
-interface CardProps extends HTMLMotionProps<"div"> {
+interface CardProps extends HTMLMotionProps<'div'> {
   children: ReactNode;
 }
 
@@ -15,7 +15,7 @@ export const Card = ({ children, className, ...props }: CardProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl",
+        'bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl',
         className
       )}
       {...props}

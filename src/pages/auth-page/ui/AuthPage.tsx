@@ -1,5 +1,5 @@
-import { Container } from "../../../shared/ui";
-import { AuthForm } from "../../../widgets/auth-form";
+import { Container } from '../../../shared/ui';
+import { AuthForm } from '../../../widgets/auth-form';
 
 /**
  * AuthPage Component.

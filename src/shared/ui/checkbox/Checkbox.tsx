@@ -1,5 +1,5 @@
-import { forwardRef, type InputHTMLAttributes } from "react";
-import { cn } from "../../lib/clsx";
+import { forwardRef, type InputHTMLAttributes } from 'react';
+import { cn } from '../../lib/clsx';
 
 interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -17,9 +17,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             type="checkbox"
             ref={ref}
             className={cn(
-              "peer w-5 h-5 rounded-md border-2 border-white/20 bg-white/5 appearance-none transition-all",
-              "checked:bg-indigo-600 checked:border-indigo-600 cursor-pointer",
-              "focus:ring-2 focus:ring-indigo-500/50 outline-none",
+              'peer w-5 h-5 rounded-md border-2 border-white/20 bg-white/5 appearance-none transition-all',
+              'checked:bg-indigo-600 checked:border-indigo-600 cursor-pointer',
+              'focus:ring-2 focus:ring-indigo-500/50 outline-none',
               className
             )}
             {...props}
@@ -49,4 +49,4 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   }
 );
 
-Checkbox.displayName = "Checkbox";
+Checkbox.displayName = 'Checkbox';

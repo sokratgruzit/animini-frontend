@@ -1,7 +1,7 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input, Button, ErrorMessage } from "../../../../shared/ui";
-import { loginSchema, type LoginSchema, useLogin } from "../../model";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Input, Button, ErrorMessage } from '../../../../shared/ui';
+import { loginSchema, type LoginSchema, useLogin } from '../../model';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -21,7 +21,7 @@ export const LoginForm = ({ onSuccess, onFlip }: LoginFormProps) => {
     formState: { errors },
   } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
-    mode: "onBlur",
+    mode: 'onBlur',
   });
 
   const onSubmit = (data: LoginSchema) => {
@@ -42,7 +42,7 @@ export const LoginForm = ({ onSuccess, onFlip }: LoginFormProps) => {
       </h2>
 
       <Input
-        {...register("email")}
+        {...register('email')}
         label="Email Address"
         placeholder="example@mail.com"
         error={errors.email?.message}
@@ -50,7 +50,7 @@ export const LoginForm = ({ onSuccess, onFlip }: LoginFormProps) => {
       />
 
       <Input
-        {...register("password")}
+        {...register('password')}
         label="Password"
         type="password"
         placeholder="••••••••"
@@ -62,7 +62,7 @@ export const LoginForm = ({ onSuccess, onFlip }: LoginFormProps) => {
         <ErrorMessage
           message={
             (error as any).response?.data?.message ||
-            "Invalid email or password"
+            'Invalid email or password'
           }
         />
       )}

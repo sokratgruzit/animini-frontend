@@ -1,7 +1,7 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input, Button, ErrorMessage } from "../../../../shared/ui";
-import { registerSchema, type RegisterSchema, useRegister } from "../../model";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Input, Button, ErrorMessage } from '../../../../shared/ui';
+import { registerSchema, type RegisterSchema, useRegister } from '../../model';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -21,7 +21,7 @@ export const RegisterForm = ({ onSuccess, onFlip }: RegisterFormProps) => {
     formState: { errors },
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
-    mode: "onBlur",
+    mode: 'onBlur',
   });
 
   const onSubmit = (data: RegisterSchema) => {
@@ -42,7 +42,7 @@ export const RegisterForm = ({ onSuccess, onFlip }: RegisterFormProps) => {
       </h2>
 
       <Input
-        {...register("email")}
+        {...register('email')}
         label="Email Address"
         placeholder="example@mail.com"
         error={errors.email?.message}
@@ -50,7 +50,7 @@ export const RegisterForm = ({ onSuccess, onFlip }: RegisterFormProps) => {
       />
 
       <Input
-        {...register("password")}
+        {...register('password')}
         label="Password"
         type="password"
         placeholder="••••••••"
@@ -59,7 +59,7 @@ export const RegisterForm = ({ onSuccess, onFlip }: RegisterFormProps) => {
       />
 
       <Input
-        {...register("confirmPassword")}
+        {...register('confirmPassword')}
         label="Confirm Password"
         type="password"
         placeholder="••••••••"
@@ -70,7 +70,7 @@ export const RegisterForm = ({ onSuccess, onFlip }: RegisterFormProps) => {
       {error && (
         <ErrorMessage
           message={
-            (error as any).response?.data?.message || "Registration failed"
+            (error as any).response?.data?.message || 'Registration failed'
           }
         />
       )}

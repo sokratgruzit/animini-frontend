@@ -1,1 +1,1 @@
-export * from "./InteractiveCube";
+export * from './InteractiveCube';

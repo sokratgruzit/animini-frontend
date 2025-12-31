@@ -1,2 +1,2 @@
-export * from "./register-schema";
-export * from "./use-register";
+export * from './register-schema';
+export * from './use-register';
