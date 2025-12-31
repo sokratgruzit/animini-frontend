@@ -15,7 +15,7 @@ export const Card = ({ children, className, ...props }: CardProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        'bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl',
+        'bg-white/5 pointer-events-auto backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl',
         className
       )}
       {...props}

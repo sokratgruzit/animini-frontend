@@ -3,7 +3,10 @@
  */
 
 // Export actions from the slice
-export { setAuth, logout, setAppReady } from './model/slice';
-
-// Export types
-export type { RootState, AppDispatch } from '../../app/store';
+export {
+  setAuth,
+  logout,
+  setAppReady,
+  checkAuth,
+  userLogout,
+} from './model/slice';

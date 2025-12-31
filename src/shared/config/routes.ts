@@ -4,6 +4,7 @@
 export const ROUTES = {
   AUTH: '/auth',
   DASHBOARD: '/',
+  ACTIVATE: '/activate/:link',
 } as const;
 
 /**

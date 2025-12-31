@@ -1,4 +1,9 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from '@reduxjs/toolkit';
+import { checkAuthRequest, logoutRequest } from '../api/user-api';
 
 /**
  * Basic User profile structure
@@ -20,6 +25,36 @@ const initialState: UserState = {
   isAuth: false,
   isAppReady: false,
 };
+
+/**
+ * Async Thunk to perform initial auth check.
+ */
+export const checkAuth = createAsyncThunk(
+  'user/checkAuth',
+  async (_, thunkAPI) => {
+    try {
+      const data = await checkAuthRequest();
+      return data;
+    } catch (e) {
+      return thunkAPI.rejectWithValue('Unauthorized');
+    }
+  }
+);
+
+/**
+ * Async Thunk to perform logout on the server and client.
+ */
+export const userLogout = createAsyncThunk(
+  'user/logout',
+  async (_, thunkAPI) => {
+    try {
+      await logoutRequest();
+      // After server responds, we return nothing, extraReducers will handle the rest
+    } catch (e) {
+      return thunkAPI.rejectWithValue('Logout failed');
+    }
+  }
+);
 
 export const userSlice = createSlice({
   name: 'user',
@@ -45,6 +80,23 @@ export const userSlice = createSlice({
       state.data = null;
       state.isAuth = false;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(checkAuth.fulfilled, (state, action: PayloadAction<User>) => {
+        state.data = action.payload;
+        state.isAuth = true;
+        state.isAppReady = true;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.data = null;
+        state.isAuth = false;
+        state.isAppReady = true;
+      })
+      .addCase(userLogout.fulfilled, (state) => {
+        state.data = null;
+        state.isAuth = false;
+      });
   },
 });
 
