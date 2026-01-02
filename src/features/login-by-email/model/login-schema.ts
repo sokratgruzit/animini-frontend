@@ -4,7 +4,7 @@ import { z } from 'zod';
  * Validation schema for the Login form
  */
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
 });
 

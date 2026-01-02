@@ -1,16 +1,31 @@
 import { $api } from '../../../shared/api';
 
 /**
- * Checks current session on the backend.
- * Returns user data if session is valid.
+ * Response structure from the backend /refresh endpoint
  */
-export const checkAuthRequest = async () => {
-  const response = await $api.get('/refresh'); // Или /check, зависит от твоего бэкенда
+interface AuthResponse {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    emailVerified: boolean;
+    isAdmin: boolean;
+    roles: string[];
+  };
+  accessToken: string;
+}
+
+/**
+ * Checks current session by calling the refresh endpoint.
+ * Returns both new access token and user profile data.
+ */
+export const checkAuthRequest = async (): Promise<AuthResponse> => {
+  const response = await $api.get<AuthResponse>('/refresh');
   return response.data;
 };
 
 /**
- * Notifies the server to terminate the current session.
+ * Notifies the server to terminate the session and clear cookies.
  */
 export const logoutRequest = async () => {
   const response = await $api.post('/logout');
@@ -18,7 +33,7 @@ export const logoutRequest = async () => {
 };
 
 /**
- * Sends the activation link to the server to verify the account.
+ * Sends the activation link to the server (to be used later).
  */
 export const activateRequest = async (activationLink: string) => {
   const response = await $api.get(`/activate/${activationLink}`);

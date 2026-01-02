@@ -6,25 +6,32 @@ import type { RegisterSchema } from './register-schema';
 
 /**
  * Custom hook for handling registration logic.
- * Connects API request with Redux state management.
+ * Updates localStorage and Redux store on success.
  */
 export const useRegister = () => {
   const dispatch = useDispatch();
 
   return useMutation({
-    // We omit confirmPassword from the data sent to the server
     mutationFn: (data: RegisterSchema) => {
       const { confirmPassword, ...registerDto } = data;
       return registerRequest(registerDto);
     },
 
-    // On success, we update the Redux store with received user data
-    onSuccess: (userData) => {
-      dispatch(setAuth(userData));
-      console.log('Registration successful:', userData);
+    onSuccess: (data) => {
+      /**
+       * data contains { user, accessToken, message, success }
+       * Store the access token for subsequent API calls
+       */
+      localStorage.setItem('accessToken', data.accessToken);
+
+      /**
+       * Update global Redux state with user profile data
+       */
+      dispatch(setAuth(data.user));
+
+      console.log('Registration successful:', data.user.name);
     },
 
-    // Global error handling for this mutation
     onError: (error: any) => {
       console.error(
         'Registration failed:',

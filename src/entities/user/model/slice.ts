@@ -6,18 +6,21 @@ import {
 import { checkAuthRequest, logoutRequest } from '../api/user-api';
 
 /**
- * Basic User profile structure
+ * User profile structure synchronized with the backend (2026)
  */
 interface User {
   id: string;
   email: string;
-  isActivated: boolean;
+  name: string;
+  emailVerified: boolean;
+  isAdmin: boolean;
+  roles: string[];
 }
 
 interface UserState {
   data: User | null;
   isAuth: boolean;
-  isAppReady: boolean; // For global loading screen control
+  isAppReady: boolean;
 }
 
 const initialState: UserState = {
@@ -27,29 +30,35 @@ const initialState: UserState = {
 };
 
 /**
- * Async Thunk to perform initial auth check.
+ * Async Thunk for initial authentication check.
+ * Handles the combined response of user data and access token.
  */
 export const checkAuth = createAsyncThunk(
   'user/checkAuth',
   async (_, thunkAPI) => {
     try {
-      const data = await checkAuthRequest();
-      return data;
+      const response = await checkAuthRequest();
+      /**
+       * Store the new access token received from the refresh call
+       */
+      localStorage.setItem('accessToken', response.accessToken);
+      return response.user;
     } catch (e) {
+      localStorage.removeItem('accessToken');
       return thunkAPI.rejectWithValue('Unauthorized');
     }
   }
 );
 
 /**
- * Async Thunk to perform logout on the server and client.
+ * Async Thunk for logging out
  */
 export const userLogout = createAsyncThunk(
   'user/logout',
   async (_, thunkAPI) => {
     try {
       await logoutRequest();
-      // After server responds, we return nothing, extraReducers will handle the rest
+      localStorage.removeItem('accessToken');
     } catch (e) {
       return thunkAPI.rejectWithValue('Logout failed');
     }
@@ -61,24 +70,22 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     /**
-     * Set user after successful login or registration
+     * Set user data and authentication status
      */
     setAuth: (state, action: PayloadAction<User>) => {
       state.data = action.payload;
       state.isAuth = true;
     },
-    /**
-     * Called when the app has finished initial checks (auth, assets, etc.)
-     */
     setAppReady: (state, action: PayloadAction<boolean>) => {
       state.isAppReady = action.payload;
     },
     /**
-     * Reset user state on logout
+     * Clean up user state and local storage
      */
     logout: (state) => {
       state.data = null;
       state.isAuth = false;
+      localStorage.removeItem('accessToken');
     },
   },
   extraReducers: (builder) => {

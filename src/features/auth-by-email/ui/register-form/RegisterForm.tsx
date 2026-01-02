@@ -50,6 +50,14 @@ export const RegisterForm = ({ onSuccess, onFlip }: RegisterFormProps) => {
       />
 
       <Input
+        {...register('name')}
+        label="Your name"
+        placeholder="Jon Doe"
+        error={errors.name?.message}
+        disabled={isPending}
+      />
+
+      <Input
         {...register('password')}
         label="Password"
         type="password"
