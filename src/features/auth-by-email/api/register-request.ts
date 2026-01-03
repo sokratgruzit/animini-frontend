@@ -11,6 +11,6 @@ type RegisterDto = Omit<RegisterSchema, 'confirmPassword'>;
  * Sends registration data to the server
  */
 export const registerRequest = async (data: RegisterDto) => {
-  const response = await $api.post('/registration', data);
+  const response = await $api.post('/auth/register', data);
   return response.data;
 };

@@ -4,11 +4,16 @@ import {
   Navigate,
 } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { AuthPage, DashboardPage, ActivatePage } from '../../../pages';
+import {
+  AuthPage,
+  DashboardPage,
+  ActivatePage,
+  WalletPage,
+} from '../../../pages';
 import { type RootState } from '../../store';
 import { ROUTES } from '../../../shared/config/routes';
 import { AuthLayout } from './ui/AuthLayout';
-import { MainLayout } from './ui/MainLayout'; // Added import
+import { MainLayout } from './ui/MainLayout';
 
 export const AppRouter = () => {
   const isAuth = useSelector((state: RootState) => state.user.isAuth);
@@ -28,12 +33,16 @@ export const AppRouter = () => {
       ],
     },
     {
-      // Using MainLayout for protected Dashboard
+      // Protected routes wrapped in MainLayout
       element: isAuth ? <MainLayout /> : <Navigate to={ROUTES.AUTH} />,
       children: [
         {
           path: ROUTES.DASHBOARD,
           element: <DashboardPage />,
+        },
+        {
+          path: ROUTES.WALLET,
+          element: <WalletPage />,
         },
       ],
     },

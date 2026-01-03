@@ -4,6 +4,7 @@
 export const ROUTES = {
   AUTH: '/auth',
   DASHBOARD: '/',
+  WALLET: '/wallet',
   ACTIVATE: '/activate/:link',
 } as const;
 

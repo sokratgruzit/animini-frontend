@@ -1,5 +1,5 @@
 /**
- * Public API for the User entity
+ * Public API for the UI entity
  */
 
 export * from './model/slice';

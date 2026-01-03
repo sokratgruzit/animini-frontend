@@ -20,7 +20,7 @@ interface AuthResponse {
  * Returns both new access token and user profile data.
  */
 export const checkAuthRequest = async (): Promise<AuthResponse> => {
-  const response = await $api.get<AuthResponse>('/refresh');
+  const response = await $api.post<AuthResponse>('/auth/refresh');
   return response.data;
 };
 
@@ -28,7 +28,7 @@ export const checkAuthRequest = async (): Promise<AuthResponse> => {
  * Notifies the server to terminate the session and clear cookies.
  */
 export const logoutRequest = async () => {
-  const response = await $api.post('/logout');
+  const response = await $api.post('/auth/logout');
   return response.data;
 };
 
@@ -36,6 +36,6 @@ export const logoutRequest = async () => {
  * Sends the activation link to the server (to be used later).
  */
 export const activateRequest = async (activationLink: string) => {
-  const response = await $api.get(`/activate/${activationLink}`);
+  const response = await $api.get(`/auth/activate/${activationLink}`);
   return response.data;
 };

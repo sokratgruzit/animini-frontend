@@ -1,40 +1,100 @@
+import { useDispatch, useSelector } from 'react-redux';
 import { Outlet } from 'react-router-dom';
+import { IoMenu, IoLogOutOutline } from 'react-icons/io5';
+import type { RootState } from '../../../store';
+import {
+  closePanel,
+  togglePanel,
+  type PanelSide,
+  type PanelContent as PanelContentType,
+} from '../../../../features/panel';
+import { logout } from '../../../../entities/user';
+import {
+  PanelRoot,
+  PanelHeader,
+  PanelContent,
+  Button,
+} from '../../../../shared/ui';
+import { MainNavigation } from '../../../../features/navigation/ui';
 
 /**
- * MainLayout Component.
- * Structural wrapper for authenticated pages.
- * Defines the grid: Sidebar + Main Content.
+ * Component Mapper
  */
+const panelContentMap: Record<
+  NonNullable<PanelContentType>,
+  React.ReactNode
+> = {
+  navigation: <MainNavigation />,
+  wallet: <div>Wallet Widget</div>,
+  settings: <div>Settings Widget</div>,
+  'anime-list': <div>Anime List Widget</div>,
+  notifications: <div>Notifications</div>,
+};
+
 export const MainLayout = () => {
+  const dispatch = useDispatch();
+  const panels = useSelector((state: RootState) => state.panel.panels);
+
+  const handleClose = (side: PanelSide) => {
+    dispatch(closePanel(side));
+  };
+
   return (
-    <div className="flex min-h-screen bg-[#020617] text-white">
-      {/* Sidebar Placeholder - We will replace this with a Widget later */}
-      <aside className="w-64 border-r border-white/10 bg-[#030712] p-6 hidden md:block">
-        <div className="flex flex-col h-full">
-          <div className="text-xl font-bold mb-10 text-indigo-500">
-            App Name
-          </div>
+    <div className="relative flex min-h-screen bg-[#020617] text-white overflow-hidden">
+      {/* 1. Global Navigation Trigger */}
+      <div className="fixed top-6 left-6 z-40">
+        <Button
+          variant="secondary"
+          onClick={() => {
+            dispatch(togglePanel({ side: 'left', content: 'navigation' }));
+          }}
+          className="w-12 h-12 p-0 flex items-center justify-center rounded-xl"
+        >
+          <IoMenu size={24} className="text-indigo-500" />
+        </Button>
+      </div>
 
-          <nav className="flex-1 space-y-2">
-            <div className="p-3 bg-white/5 rounded-lg text-sm">Dashboard</div>
-            <div className="p-3 text-gray-400 text-sm hover:text-white transition-colors cursor-pointer">
-              Projects
-            </div>
-            <div className="p-3 text-gray-400 text-sm hover:text-white transition-colors cursor-pointer">
-              Settings
-            </div>
-          </nav>
+      {/* 2. Dynamic Panels Rendering */}
+      {(Object.keys(panels) as PanelSide[]).map((side) => {
+        const { isOpen, content } = panels[side];
 
-          <div className="mt-auto pt-6 border-t border-white/10">
-            {/* Logout button will be moved here later */}
-            <div className="text-sm text-red-400 cursor-pointer">Logout</div>
-          </div>
-        </div>
-      </aside>
+        return (
+          <PanelRoot
+            key={side}
+            side={side}
+            isOpen={isOpen}
+            onClose={() => handleClose(side)}
+          >
+            {content && (
+              <>
+                <PanelHeader
+                  title={content.charAt(0).toUpperCase() + content.slice(1)}
+                  onClose={() => handleClose(side)}
+                />
+                <PanelContent className="flex flex-col h-full">
+                  <div className="flex-1">{panelContentMap[content]}</div>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col relative overflow-hidden">
-        {/* Render actual page content (e.g. DashboardPage) */}
+                  {content === 'navigation' && (
+                    <div className="mt-auto pt-6 border-t border-white/10">
+                      <Button
+                        variant="outline"
+                        onClick={() => dispatch(logout())}
+                        className="justify-start gap-3 border-transparent text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all"
+                      >
+                        <IoLogOutOutline size={20} />
+                        <span>Logout</span>
+                      </Button>
+                    </div>
+                  )}
+                </PanelContent>
+              </>
+            )}
+          </PanelRoot>
+        );
+      })}
+
+      {/* 3. Main Content Canvas */}
+      <main className="flex-1 relative w-full h-screen overflow-auto">
         <Outlet />
       </main>
     </div>

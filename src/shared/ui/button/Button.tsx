@@ -41,7 +41,7 @@ export const Button = ({
       // Prevent interactions during loading or when disabled
       disabled={isLoading || disabled}
       className={cn(
-        'relative w-full py-3 px-6 rounded-xl font-bold transition-all duration-200',
+        'relative w-full pointer-events-auto py-3 px-6 rounded-xl font-bold transition-all duration-200',
         'flex justify-center items-center gap-2 overflow-hidden',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         variants[variant],

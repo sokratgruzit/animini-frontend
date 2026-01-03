@@ -27,38 +27,32 @@ $api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    /**
-     * If the error is 401 and we haven't tried to refresh yet
-     */
     if (error.response?.status === 401 && !originalRequest._isRetry) {
       originalRequest._isRetry = true;
       try {
-        /**
-         * Use a fresh axios instance to call /refresh.
-         * This prevents infinite loops and bypasses $api interceptors.
-         */
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/refresh`,
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/auth/refresh`,
+          {},
           { withCredentials: true }
         );
 
         const { accessToken } = response.data;
-
-        /**
-         * Save new token and retry the original request with new headers
-         */
         localStorage.setItem('accessToken', accessToken);
 
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         }
 
+        /**
+         * If the original failed request was the checkAuth call (/auth/refresh),
+         * we return the data we just received instead of re-executing the call.
+         */
+        if (originalRequest.url?.includes('/auth/refresh')) {
+          return { ...response, data: response.data };
+        }
+
         return $api.request(originalRequest);
       } catch (refreshError) {
-        /**
-         * If refresh fails, the session is dead.
-         * Clean up and notify the application.
-         */
         localStorage.removeItem('accessToken');
         window.dispatchEvent(new CustomEvent('app:unauthorized'));
         return Promise.reject(refreshError);

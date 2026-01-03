@@ -20,7 +20,7 @@ export const Backdrop = ({ children, className, onClick }: BackdropProps) => {
       exit={{ opacity: 0 }}
       onClick={onClick}
       className={cn(
-        'fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4',
+        'fixed inset-0 pointer-events-auto z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4',
         className
       )}
     >
