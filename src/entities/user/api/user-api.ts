@@ -28,7 +28,7 @@ export const checkAuthRequest = async (): Promise<AuthResponse> => {
  * Notifies the server to terminate the session and clear cookies.
  */
 export const logoutRequest = async () => {
-  const response = await $api.post('/auth/logout');
+  const response = await $api.get('/auth/logout');
   return response.data;
 };
 

@@ -35,26 +35,39 @@ const ActivatePage = () => {
 
   return (
     <Container isCentered>
-      <Card className="w-full max-w-md text-center flex flex-col gap-6">
-        <h2 className="text-white text-2xl font-bold">Account Activation</h2>
+      <Card className="w-full max-w-md text-center flex flex-col gap-6 panel-glass p-8">
+        <h2 className="text-surface-100 text-2xl font-bold tracking-tight">
+          Account Activation
+        </h2>
 
         {status === 'loading' && (
-          <p className="text-gray-400 animate-pulse">Verifying your link...</p>
+          <p className="text-surface-300 animate-pulse">
+            Verifying your link...
+          </p>
         )}
 
         {status === 'success' && (
           <>
-            <p className="text-green-400 font-medium">
+            <p className="text-brand-success font-medium">
               Success! Your account has been activated.
             </p>
-            <Button onClick={() => navigate(ROUTES.AUTH)}>Go to Login</Button>
+            <Button
+              onClick={() => navigate(ROUTES.AUTH)}
+              className="shadow-brand-glow bg-brand-primary"
+            >
+              Go to Login
+            </Button>
           </>
         )}
 
         {status === 'error' && (
           <>
             <ErrorMessage message={error} />
-            <Button variant="outline" onClick={() => navigate(ROUTES.AUTH)}>
+            <Button
+              variant="outline"
+              onClick={() => navigate(ROUTES.AUTH)}
+              className="border-glass-border hover:bg-glass-hover text-surface-200"
+            >
               Back to Login
             </Button>
           </>

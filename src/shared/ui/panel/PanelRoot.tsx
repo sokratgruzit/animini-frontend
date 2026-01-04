@@ -41,7 +41,6 @@ export const PanelRoot = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Explicitly enable pointer events for backdrop to catch onClose click */}
           <Backdrop onClick={onClose} className="z-50 pointer-events-auto" />
 
           <motion.div
@@ -50,12 +49,10 @@ export const PanelRoot = ({
             animate="animate"
             exit="exit"
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            /* STOP BUBBLING */
             onClick={(e) => e.stopPropagation()}
-            /* RE-ENABLE POINTER EVENTS FOR THE PANEL BODY */
             className={cn(
-              'fixed z-50 pointer-events-auto',
-              'bg-[#030712] md:bg-[#030712]/90 md:backdrop-blur-xl border-white/10 flex flex-col overflow-hidden shadow-2xl',
+              'fixed z-50 pointer-events-auto flex flex-col overflow-hidden shadow-2xl transition-all duration-300',
+              'bg-dark-base md:panel-glass border-glass-border',
               positionClasses[side],
               className
             )}

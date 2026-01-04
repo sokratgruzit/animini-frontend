@@ -16,18 +16,18 @@ export const PanelHeader = ({
   return (
     <div
       className={cn(
-        'flex items-center justify-between p-6 border-b border-white/10',
+        'flex items-center justify-between p-6 border-b border-glass-border pointer-events-auto',
         className
       )}
     >
-      <h2 className="text-xl font-bold text-indigo-500 selection:bg-indigo-500/30">
+      <h2 className="text-xl font-bold text-brand-primary selection:bg-brand-primary/30 tracking-tight">
         {title}
       </h2>
 
       <Button
         variant="outline"
         onClick={onClose}
-        className="w-10 h-10 p-0 rounded-lg border-transparent hover:bg-white/5 text-gray-400 hover:text-white"
+        className="w-10 h-10 p-0 rounded-lg border-transparent hover:bg-glass-hover text-surface-300 hover:text-surface-100"
         aria-label="Close panel"
       >
         <IoClose size={24} />

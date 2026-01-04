@@ -7,6 +7,8 @@ import type { RootState } from '../../../app/store';
 import {
   fetchWalletDataRequest,
   fetchTransactionsRequest,
+  depositFundsRequest,
+  checkPaymentStatusRequest,
 } from '../api/wallet-api';
 import type { WalletState, Transaction } from './types';
 
@@ -31,8 +33,58 @@ export const getWalletData = createAsyncThunk(
 );
 
 /**
+ * Initiates deposit and redirects to YooKassa
+ */
+export const depositFunds = createAsyncThunk(
+  'wallet/depositFunds',
+  async (amount: number, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+
+      const response = await depositFundsRequest(amount);
+
+      if (response.confirmationUrl) {
+        sessionStorage.setItem('pendingTransactionId', response.transactionId);
+        window.location.href = response.confirmationUrl;
+      }
+
+      return response;
+    } catch (e) {
+      dispatch(setError('Failed to initiate deposit'));
+      return rejectWithValue(e);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+);
+
+/**
+ * Polling or manual check for payment status
+ */
+export const checkPaymentStatus = createAsyncThunk(
+  'wallet/checkPaymentStatus',
+  async (transactionId: string, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(setLoading(true));
+      const data = await checkPaymentStatusRequest(transactionId);
+
+      if (data.status === 'completed') {
+        await dispatch(getWalletData());
+        await dispatch(fetchTransactions(true));
+      }
+
+      return data;
+    } catch (e) {
+      return rejectWithValue(e);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+);
+
+/**
  * Thunk for paginated transactions history
- * @param isRefresh - if true, resets to page 1 and clears existing items
  */
 export const fetchTransactions = createAsyncThunk(
   'wallet/fetchTransactions',
@@ -92,7 +144,7 @@ export const walletSlice = createSlice({
 
     setTransactions: (state, action: PayloadAction<Transaction[]>) => {
       state.transactions.items = action.payload;
-      state.transactions.page = 2; // Next page will be 2
+      state.transactions.page = 2;
       state.transactions.hasMore =
         action.payload.length >= state.transactions.limit;
     },

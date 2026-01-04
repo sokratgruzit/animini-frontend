@@ -37,7 +37,7 @@ export const LoginForm = ({ onSuccess, onFlip }: LoginFormProps) => {
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-4 w-full"
     >
-      <h2 className="text-white text-2xl font-bold mb-2 text-center">
+      <h2 className="text-surface-100 text-2xl font-bold mb-2 text-center tracking-tight">
         Welcome Back
       </h2>
 
@@ -67,7 +67,11 @@ export const LoginForm = ({ onSuccess, onFlip }: LoginFormProps) => {
         />
       )}
 
-      <Button type="submit" isLoading={isPending} className="mt-2">
+      <Button
+        type="submit"
+        isLoading={isPending}
+        className="mt-2 shadow-brand-glow bg-brand-primary hover:opacity-90"
+      >
         Log In
       </Button>
 
@@ -75,7 +79,7 @@ export const LoginForm = ({ onSuccess, onFlip }: LoginFormProps) => {
         <button
           type="button"
           onClick={onFlip}
-          className="text-indigo-400 hover:text-indigo-300 text-sm transition-colors cursor-pointer"
+          className="text-brand-primary hover:text-surface-100 text-sm transition-colors cursor-pointer font-medium"
         >
           Don't have an account? Sign up
         </button>

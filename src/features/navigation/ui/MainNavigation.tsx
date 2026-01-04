@@ -27,13 +27,16 @@ export const MainNavigation = () => {
             variant="outline"
             onClick={() => handleNavClick(item.path)}
             className={cn(
-              'justify-start gap-3 border-transparent transition-all',
+              'justify-start gap-3 border-transparent transition-all duration-300',
               isActive
-                ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
-                : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/20'
+                : 'text-surface-300 hover:bg-glass-hover hover:text-surface-100'
             )}
           >
-            <Icon size={20} className={isActive ? 'text-indigo-400' : ''} />
+            <Icon
+              size={20}
+              className={isActive ? 'text-brand-primary' : 'transition-colors'}
+            />
             <span className="font-medium">{item.title}</span>
           </Button>
         );

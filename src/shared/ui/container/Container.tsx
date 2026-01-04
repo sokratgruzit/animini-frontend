@@ -22,7 +22,7 @@ export const Container = ({
   return (
     <div
       className={cn(
-        'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
+        'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pointer-events-auto',
         isCentered && 'min-h-screen flex flex-col items-center justify-center',
         className
       )}

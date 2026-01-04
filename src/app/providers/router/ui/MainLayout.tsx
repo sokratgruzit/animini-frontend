@@ -1,14 +1,14 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet } from 'react-router-dom';
 import { IoMenu, IoLogOutOutline } from 'react-icons/io5';
-import type { RootState } from '../../../store';
+import type { RootState, AppDispatch } from '../../../store';
 import {
   closePanel,
   togglePanel,
   type PanelSide,
   type PanelContent as PanelContentType,
 } from '../../../../features/panel';
-import { logout } from '../../../../entities/user';
+import { userLogout } from '../../../../entities/user';
 import {
   PanelRoot,
   PanelHeader,
@@ -16,23 +16,21 @@ import {
   Button,
 } from '../../../../shared/ui';
 import { MainNavigation } from '../../../../features/navigation/ui';
+import { DepositWidget } from '../../../../features/wallet/ui';
 
-/**
- * Component Mapper
- */
 const panelContentMap: Record<
   NonNullable<PanelContentType>,
   React.ReactNode
 > = {
   navigation: <MainNavigation />,
-  wallet: <div>Wallet Widget</div>,
+  wallet: <DepositWidget />,
   settings: <div>Settings Widget</div>,
   'anime-list': <div>Anime List Widget</div>,
   notifications: <div>Notifications</div>,
 };
 
 export const MainLayout = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const panels = useSelector((state: RootState) => state.panel.panels);
 
   const handleClose = (side: PanelSide) => {
@@ -40,7 +38,7 @@ export const MainLayout = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen bg-[#020617] text-white overflow-hidden">
+    <div className="relative flex min-h-screen bg-dark-base text-surface-100 overflow-hidden">
       {/* 1. Global Navigation Trigger */}
       <div className="fixed top-6 left-6 z-40">
         <Button
@@ -48,9 +46,9 @@ export const MainLayout = () => {
           onClick={() => {
             dispatch(togglePanel({ side: 'left', content: 'navigation' }));
           }}
-          className="w-12 h-12 p-0 flex items-center justify-center rounded-xl"
+          className="w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-glass-bg border-glass-border backdrop-blur-xl"
         >
-          <IoMenu size={24} className="text-indigo-500" />
+          <IoMenu size={24} className="text-brand-primary" />
         </Button>
       </div>
 
@@ -75,11 +73,11 @@ export const MainLayout = () => {
                   <div className="flex-1">{panelContentMap[content]}</div>
 
                   {content === 'navigation' && (
-                    <div className="mt-auto pt-6 border-t border-white/10">
+                    <div className="mt-auto pt-6 border-t border-glass-border">
                       <Button
                         variant="outline"
-                        onClick={() => dispatch(logout())}
-                        className="justify-start gap-3 border-transparent text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all"
+                        onClick={() => dispatch(userLogout())}
+                        className="justify-start gap-3 border-transparent text-brand-danger hover:bg-brand-danger/10 transition-all"
                       >
                         <IoLogOutOutline size={20} />
                         <span>Logout</span>

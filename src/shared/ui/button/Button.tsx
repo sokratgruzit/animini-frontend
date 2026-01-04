@@ -1,11 +1,10 @@
 import { type ReactNode } from 'react';
 import { motion, type HTMLMotionProps } from 'framer-motion';
 import { cn } from '../../lib/clsx';
+import { Spinner } from '../spinner/Spinner';
 
 /**
  * Props for the Reusable Button.
- * We extend HTMLMotionProps instead of React.ButtonHTMLAttributes
- * to avoid type conflicts with Framer Motion events.
  */
 interface ButtonProps extends HTMLMotionProps<'button'> {
   children: ReactNode;
@@ -15,7 +14,6 @@ interface ButtonProps extends HTMLMotionProps<'button'> {
 
 /**
  * Reusable Button component with Framer Motion animations.
- * Features: Loading state, visual variants, and fluid interactions.
  */
 export const Button = ({
   children,
@@ -27,38 +25,28 @@ export const Button = ({
 }: ButtonProps) => {
   const variants = {
     primary:
-      'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20',
-    secondary: 'bg-white/10 hover:bg-white/15 text-gray-200',
+      'bg-brand-primary text-surface-100 shadow-brand-glow hover:opacity-90',
+    secondary:
+      'bg-glass-bg border border-glass-border text-surface-100 hover:bg-glass-hover',
     outline:
-      'bg-transparent border border-white/10 hover:border-white/20 text-gray-300',
+      'bg-transparent border border-glass-border text-surface-200 hover:text-surface-100 hover:bg-glass-hover',
   };
 
   return (
     <motion.button
-      // Interaction animations
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
-      // Prevent interactions during loading or when disabled
       disabled={isLoading || disabled}
       className={cn(
-        'relative w-full pointer-events-auto py-3 px-6 rounded-xl font-bold transition-all duration-200',
+        'relative w-full pointer-events-auto py-3 px-6 rounded-xl font-bold transition-all duration-300',
         'flex justify-center items-center gap-2 overflow-hidden',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         variants[variant],
         className
       )}
-      // Spread remaining motion and button props
       {...props}
     >
-      {isLoading ? (
-        <div className="flex items-center gap-2">
-          {/* Animated spinner for loading state */}
-          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          <span className="opacity-70 font-medium">Loading...</span>
-        </div>
-      ) : (
-        children
-      )}
+      {isLoading ? <Spinner message="Processing" /> : children}
     </motion.button>
   );
 };

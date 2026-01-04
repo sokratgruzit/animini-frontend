@@ -16,10 +16,10 @@ export const ErrorMessage = ({ message }: ErrorMessageProps) => {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
+      className="flex items-center gap-2 p-3 rounded-lg bg-brand-danger/10 border border-brand-danger/20 text-brand-danger text-sm pointer-events-auto"
     >
-      <BiErrorCircle size={18} />
-      <span>{message}</span>
+      <BiErrorCircle size={18} className="shrink-0" />
+      <span className="font-medium tracking-tight">{message}</span>
     </motion.div>
   );
 };

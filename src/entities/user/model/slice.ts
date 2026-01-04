@@ -31,16 +31,12 @@ const initialState: UserState = {
 
 /**
  * Async Thunk for initial authentication check.
- * Handles the combined response of user data and access token.
  */
 export const checkAuth = createAsyncThunk(
   'user/checkAuth',
   async (_, thunkAPI) => {
     try {
       const response = await checkAuthRequest();
-      /**
-       * Store the new access token received from the refresh call
-       */
       localStorage.setItem('accessToken', response.accessToken);
       return response.user;
     } catch (e) {
@@ -51,16 +47,22 @@ export const checkAuth = createAsyncThunk(
 );
 
 /**
- * Async Thunk for logging out
+ * Async Thunk for logging out.
+ * Ensures the session is terminated on the backend and client is cleaned.
  */
 export const userLogout = createAsyncThunk(
   'user/logout',
   async (_, thunkAPI) => {
     try {
       await logoutRequest();
-      localStorage.removeItem('accessToken');
     } catch (e) {
       return thunkAPI.rejectWithValue('Logout failed');
+    } finally {
+      /**
+       * Always remove token even if the server request fails
+       * to prevent local state persistence.
+       */
+      localStorage.removeItem('accessToken');
     }
   }
 );
@@ -69,9 +71,6 @@ export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    /**
-     * Set user data and authentication status
-     */
     setAuth: (state, action: PayloadAction<User>) => {
       state.data = action.payload;
       state.isAuth = true;
@@ -80,9 +79,10 @@ export const userSlice = createSlice({
       state.isAppReady = action.payload;
     },
     /**
-     * Clean up user state and local storage
+     * Synchronous state reset.
+     * Used for 401 errors to avoid extra API calls.
      */
-    logout: (state) => {
+    resetUserState: (state) => {
       state.data = null;
       state.isAuth = false;
       localStorage.removeItem('accessToken');
@@ -100,11 +100,18 @@ export const userSlice = createSlice({
         state.isAuth = false;
         state.isAppReady = true;
       })
+      /**
+       * Handle state cleanup regardless of API response success or failure
+       */
       .addCase(userLogout.fulfilled, (state) => {
+        state.data = null;
+        state.isAuth = false;
+      })
+      .addCase(userLogout.rejected, (state) => {
         state.data = null;
         state.isAuth = false;
       });
   },
 });
 
-export const { setAuth, setAppReady, logout } = userSlice.actions;
+export const { setAuth, setAppReady, resetUserState } = userSlice.actions;

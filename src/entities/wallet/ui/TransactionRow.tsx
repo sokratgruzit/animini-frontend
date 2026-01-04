@@ -12,19 +12,18 @@ export const TransactionRow = ({
   transaction,
   activeColumns,
 }: TransactionRowProps) => {
-  // Mapper logic to render content based on Column ID
   const renderCellContent = (id: WalletColumnId) => {
     switch (id) {
       case 'id':
         return (
-          <span className="font-mono text-xs opacity-40">
+          <span className="font-mono text-micro text-surface-300">
             {transaction.id.slice(0, 8)}
           </span>
         );
 
       case 'type':
         return (
-          <span className="font-medium text-white/90">
+          <span className="font-medium text-surface-100 capitalize">
             {transaction.type.replace('_', ' ')}
           </span>
         );
@@ -39,7 +38,7 @@ export const TransactionRow = ({
           <span
             className={cn(
               'font-bold tracking-tight',
-              isPositive ? 'text-emerald-400' : 'text-rose-400'
+              isPositive ? 'text-brand-success' : 'text-brand-danger'
             )}
           >
             {isPositive ? '+' : '-'}
@@ -49,7 +48,7 @@ export const TransactionRow = ({
 
       case 'date':
         return (
-          <span className="text-gray-500 text-xs">
+          <span className="text-surface-300 text-micro">
             {new Date(transaction.timestamp).toLocaleDateString()}
           </span>
         );
@@ -58,10 +57,10 @@ export const TransactionRow = ({
         return (
           <span
             className={cn(
-              'text-[10px] font-black uppercase tracking-wider',
-              transaction.status === 'completed' && 'text-emerald-500',
-              transaction.status === 'pending' && 'text-amber-500',
-              transaction.status === 'failed' && 'text-rose-500'
+              'text-micro font-black uppercase tracking-super-wide',
+              transaction.status === 'completed' && 'text-brand-success',
+              transaction.status === 'pending' && 'text-brand-warning',
+              transaction.status === 'failed' && 'text-brand-danger'
             )}
           >
             {transaction.status}
@@ -70,11 +69,13 @@ export const TransactionRow = ({
 
       case 'balance_after':
         return (
-          <span className="text-gray-400 text-xs italic">Coming soon</span>
+          <span className="text-surface-300 text-micro italic opacity-50">
+            —
+          </span>
         );
 
       case 'recipient':
-        return <span className="text-gray-400 text-xs italic">System</span>;
+        return <span className="text-surface-200 text-micro">System</span>;
 
       default:
         return null;

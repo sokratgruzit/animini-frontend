@@ -1,20 +1,40 @@
 @import 'tailwindcss';
 
+/* 1. Theme Configuration (Tailwind v4 style) */
+@theme {
+  /* Colors */
+  --color-dark-base: #020617;
+  --color-dark-card: #0f172a;
+
+  --color-brand-primary: #6366f1;
+  --color-brand-success: #10b981;
+  --color-brand-danger: #f43f5e;
+  --color-brand-warning: #f59e0b;
+
+  --color-glass-bg: rgba(255, 255, 255, 0.05);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-glass-hover: rgba(255, 255, 255, 0.08);
+
+  --color-surface-100: #ffffff;
+  --color-surface-200: #94a3b8;
+  --color-surface-300: #64748b;
+
+  /* Typography */
+  --letter-spacing-super-wide: 0.2em;
+  --font-size-micro: 10px;
+}
+
+/* 2. Base Styles */
 @layer base {
   html,
-  body {
+  body,
+  #root {
     margin: 0;
     padding: 0;
     min-height: 100vh;
     width: 100%;
     pointer-events: none;
     background: transparent;
-  }
-
-  #root {
-    width: 100%;
-    min-height: 100vh;
-    pointer-events: none;
   }
 
   ::-webkit-scrollbar {
@@ -41,5 +61,30 @@
   * {
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+}
+
+/* 3. Global Components */
+@layer components {
+  .panel-glass {
+    background-color: var(--color-glass-bg);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--color-glass-border);
+    border-radius: 1rem; /* rounded-2xl */
+    transition-property: all;
+    transition-duration: 300ms;
+  }
+
+  .card-hover:hover {
+    background-color: var(--color-glass-hover);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .text-label {
+    font-size: var(--font-size-micro);
+    font-weight: 900; /* black */
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-super-wide);
+    color: var(--color-surface-300);
   }
 }

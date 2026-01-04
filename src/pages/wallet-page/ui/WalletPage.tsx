@@ -1,28 +1,32 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { AnimatePresence } from 'framer-motion';
 import {
   IoArrowUpCircleOutline,
   IoArrowDownCircleOutline,
   IoDiamondOutline,
   IoShieldCheckmarkOutline,
 } from 'react-icons/io5';
-import { Button, StatCard } from '../../../shared/ui';
+import { Button, StatCard, LoadingScreen } from '../../../shared/ui';
 import { Table, THead, TBody, TH, TR } from '../../../shared/ui/table/Table';
 import { TransactionRow } from '../../../entities/wallet/ui/TransactionRow';
 import { WALLET_COLUMNS } from '../../../shared/config/columns';
 import {
   getWalletData,
   fetchTransactions,
+  checkPaymentStatus,
 } from '../../../entities/wallet/model/slice';
+import { togglePanel } from '../../../features/panel';
 import type { RootState, AppDispatch } from '../../../app/store';
 
 const WalletPage = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
+
   const { balance, reputation, transactions, isLoading } = useSelector(
     (state: RootState) => state.wallet
   );
 
-  // Dynamic columns selection based on priority
   const activeColumns = useMemo(() => {
     return WALLET_COLUMNS.filter((col) => col.priority <= 4).map(
       (col) => col.id
@@ -32,12 +36,25 @@ const WalletPage = () => {
   useEffect(() => {
     dispatch(getWalletData());
     dispatch(fetchTransactions(true));
+
+    /**
+     * Check sessionStorage for a pending transaction after return.
+     * We use local state to keep the LoadingScreen active until the thunk finishes.
+     */
+    const pendingId = sessionStorage.getItem('pendingTransactionId');
+    if (pendingId) {
+      setVerifyingId(pendingId);
+      sessionStorage.removeItem('pendingTransactionId');
+
+      dispatch(checkPaymentStatus(pendingId))
+        .unwrap()
+        .finally(() => setVerifyingId(null));
+    }
   }, [dispatch]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
 
-    // Check if we reached the bottom of the scrollable area
     if (
       scrollHeight - scrollTop <= clientHeight + 50 &&
       transactions.hasMore &&
@@ -47,42 +64,53 @@ const WalletPage = () => {
     }
   };
 
+  const handleOpenDeposit = () => {
+    dispatch(togglePanel({ side: 'right', content: 'wallet' }));
+  };
+
+  /**
+   * Determine if we show the overlay loader based on local verification state
+   */
+  const showOverlay = !!verifyingId && isLoading;
+
   return (
-    /* h-screen and overflow-hidden lock the main viewport */
-    <div className="flex flex-col h-screen overflow-hidden pointer-events-auto">
+    <div className="flex flex-col h-screen overflow-hidden pointer-events-auto bg-dark-base">
+      <AnimatePresence>
+        {showOverlay && <LoadingScreen message="Verifying Transaction..." />}
+      </AnimatePresence>
+
       {/* 1. Header Section - Fixed (shrink-0) */}
       <div className="mt-6 px-6 md:px-8 shrink-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Stats Row */}
           <div className="flex flex-wrap items-center gap-3 w-full order-2 md:order-1 md:w-auto md:ml-16">
             <StatCard
               title="Balance"
               value={balance.toLocaleString()}
               icon={IoDiamondOutline}
-              iconColor="text-indigo-400"
-              className="w-full sm:flex-1 md:flex-none md:w-44"
+              iconColor="text-brand-primary"
+              className="w-full sm:flex-1 md:flex-none md:w-44 panel-glass border-glass-border"
             />
             <StatCard
               title="Reputation"
               value={reputation}
               icon={IoShieldCheckmarkOutline}
-              iconColor="text-emerald-400"
-              className="w-full sm:flex-1 md:flex-none md:w-44"
+              iconColor="text-brand-success"
+              className="w-full sm:flex-1 md:flex-none md:w-44 panel-glass border-glass-border"
             />
           </div>
 
-          {/* Buttons Row */}
           <div className="flex items-center gap-2 h-12 w-full order-1 md:order-2 md:w-auto ml-auto shrink-0 justify-end">
             <Button
               variant="primary"
-              className="h-12 px-0 sm:px-5 w-12 sm:w-auto flex items-center justify-center gap-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/10 shrink-0"
+              onClick={handleOpenDeposit}
+              className="h-12 px-0 sm:px-5 w-12 sm:w-auto flex items-center justify-center gap-2 rounded-xl text-sm font-bold shadow-brand-glow bg-brand-primary shrink-0"
             >
               <IoArrowDownCircleOutline size={22} />
               <span className="hidden sm:inline">Deposit</span>
             </Button>
             <Button
               variant="secondary"
-              className="h-12 px-0 sm:px-5 w-12 sm:w-auto flex items-center justify-center gap-2 rounded-xl text-sm font-bold border border-white/5 shrink-0"
+              className="h-12 px-0 sm:px-5 w-12 sm:w-auto flex items-center justify-center gap-2 rounded-xl text-sm font-bold bg-glass-bg border border-glass-border text-surface-100 shrink-0"
             >
               <IoArrowUpCircleOutline size={22} />
               <span className="hidden sm:inline">Withdraw</span>
@@ -91,31 +119,28 @@ const WalletPage = () => {
         </div>
       </div>
 
-      {/* 2. Scrollable Content Section - flex-1 and min-h-0 enable internal scroll */}
       <div className="flex-1 mt-8 px-6 md:px-8 pb-8 min-h-0">
-        <div className="h-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-          {/* Table Header (static inside card) */}
-          <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400">
-              Transaction History
-            </h3>
-            <span className="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-1 rounded">
-              {transactions.items.length} Records
+        <div className="h-full panel-glass border-glass-border overflow-hidden flex flex-col shadow-2xl">
+          <div className="px-6 py-4 border-b border-glass-border flex justify-between items-center bg-glass-bg/50 shrink-0">
+            <h3 className="text-label">Transaction History</h3>
+            <span className="text-micro font-black bg-brand-primary/20 text-brand-primary px-2 py-1 rounded tracking-widest">
+              {transactions.items.length} RECORDS
             </span>
           </div>
 
-          {/* 3. The Only Scrollable Area */}
-          <div
-            className="flex-1 overflow-y-auto scrollbar-none"
-            onScroll={handleScroll}
-          >
+          <div className="flex-1 overflow-y-auto" onScroll={handleScroll}>
             <Table>
               <THead>
                 <TR>
                   {WALLET_COLUMNS.filter((col) =>
                     activeColumns.includes(col.id)
                   ).map((col) => (
-                    <TH key={col.id}>{col.label}</TH>
+                    <TH
+                      key={col.id}
+                      className="text-surface-300 uppercase text-micro tracking-widest"
+                    >
+                      {col.label}
+                    </TH>
                   ))}
                 </TR>
               </THead>
@@ -130,16 +155,14 @@ const WalletPage = () => {
               </TBody>
             </Table>
 
-            {/* Pagination Loading State */}
-            {isLoading && (
-              <div className="p-4 text-center text-sm text-gray-500 animate-pulse">
-                Loading...
+            {isLoading && !showOverlay && (
+              <div className="p-4 text-center text-micro text-surface-300 animate-pulse uppercase tracking-super-wide">
+                Syncing with blockchain...
               </div>
             )}
 
-            {/* End of Data State */}
             {!transactions.hasMore && transactions.items.length > 0 && (
-              <div className="p-6 text-center text-[10px] text-gray-600 uppercase tracking-[0.2em]">
+              <div className="p-8 text-center text-label opacity-40">
                 End of history
               </div>
             )}
