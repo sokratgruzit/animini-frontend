@@ -7,14 +7,14 @@ export type TransactionType =
   | 'withdraw'
   | 'transfer';
 
-export type TransactionStatus = 'pending' | 'completed' | 'failed';
+export type TransactionStatus = 'PENDING' | 'COMPLETED' | 'FAILED';
 
 export interface Transaction {
   id: string;
   amount: number;
   type: TransactionType;
   status: TransactionStatus;
-  timestamp: string;
+  createdAt: string;
   currency: string;
 }
 

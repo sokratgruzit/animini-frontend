@@ -49,7 +49,7 @@ export const TransactionRow = ({
       case 'date':
         return (
           <span className="text-surface-300 text-micro">
-            {new Date(transaction.timestamp).toLocaleDateString()}
+            {new Date(transaction.createdAt).toLocaleDateString()}
           </span>
         );
 
@@ -58,9 +58,9 @@ export const TransactionRow = ({
           <span
             className={cn(
               'text-micro font-black uppercase tracking-super-wide',
-              transaction.status === 'completed' && 'text-brand-success',
-              transaction.status === 'pending' && 'text-brand-warning',
-              transaction.status === 'failed' && 'text-brand-danger'
+              transaction.status === 'COMPLETED' && 'text-brand-success',
+              transaction.status === 'PENDING' && 'text-brand-warning',
+              transaction.status === 'FAILED' && 'text-brand-danger'
             )}
           >
             {transaction.status}
