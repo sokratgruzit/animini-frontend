@@ -12,3 +12,4 @@ export * from './panel';
 export * from './table';
 export * from './stat-card/StatCard';
 export * from './spinner/Spinner';
+export * from './video-stats-card/VideoStatsCard';

@@ -10,7 +10,7 @@ export const AuthLayout = () => {
     <>
       <BackgroundCanvas />
       {/* Outlet renders the child route (AuthPage, ActivatePage, etc.) */}
-      <div className="relative z-10 pointer-events-none">
+      <div className="relative z-10">
         <Outlet />
       </div>
     </>

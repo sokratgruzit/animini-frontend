@@ -6,6 +6,7 @@ export const ROUTES = {
   DASHBOARD: '/',
   WALLET: '/wallet',
   ACTIVATE: '/activate/:link',
+  AUTHOR: '/author',
 } as const;
 
 /**

@@ -363,9 +363,14 @@ const GlitchScreen = () => {
 };
 
 export const BackgroundCanvas = () => {
+  const rootElement = document.body;
+
   return (
     <div className="fixed inset-0 -z-10 bg-dark-base overflow-hidden pointer-events-none">
-      <Canvas camera={{ position: [0, 0, 1], fov: 75 }}>
+      <Canvas
+        eventSource={rootElement}
+        camera={{ position: [0, 0, 1], fov: 75 }}
+      >
         <Suspense fallback={null}>
           <GlitchScreen />
         </Suspense>

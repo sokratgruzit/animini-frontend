@@ -1,16 +1,18 @@
-import type { IconType } from 'react-icons'; // Import the specific type
 import {
   IoGridOutline,
   IoWalletOutline,
   IoSettingsOutline,
+  IoCreateOutline,
 } from 'react-icons/io5';
 import { ROUTES } from './routes';
+import type { IconType } from 'react-icons';
 
 export interface NavItem {
   id: string;
   title: string;
   path: string;
-  icon: IconType; // Changed from ElementType to IconType
+  icon: IconType;
+  requiredRole?: string;
 }
 
 export const MAIN_NAV_ITEMS: NavItem[] = [
@@ -19,6 +21,13 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
     title: 'Dashboard',
     path: ROUTES.DASHBOARD,
     icon: IoGridOutline,
+  },
+  {
+    id: 'author',
+    title: 'Author Workspace',
+    path: ROUTES.AUTHOR,
+    icon: IoCreateOutline,
+    requiredRole: 'AUTHOR',
   },
   {
     id: 'wallet',

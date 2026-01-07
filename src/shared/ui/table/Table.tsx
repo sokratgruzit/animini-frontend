@@ -46,12 +46,7 @@ export const TH = ({
   children: ReactNode;
   className?: string;
 }) => (
-  <th
-    className={cn(
-      'px-6 py-4 text-micro font-black uppercase tracking-super-wide text-surface-300',
-      className
-    )}
-  >
+  <th className={cn('p-6 text-xs font-medium text-surface-400', className)}>
     {children}
   </th>
 );
@@ -80,7 +75,7 @@ export const TD = ({
   children: ReactNode;
   className?: string;
 }) => (
-  <td className={cn('px-6 py-4 text-sm text-surface-200', className)}>
+  <td className={cn('px-6 py-4 text-xs text-surface-200', className)}>
     {children}
   </td>
 );

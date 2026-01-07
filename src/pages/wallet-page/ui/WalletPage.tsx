@@ -123,7 +123,7 @@ const WalletPage = () => {
         <div className="h-full panel-glass border-glass-border overflow-hidden flex flex-col shadow-2xl">
           <div className="px-6 py-4 border-b border-glass-border flex justify-between items-center bg-glass-bg/50 shrink-0">
             <h3 className="text-label">Transaction History</h3>
-            <span className="text-micro font-black bg-brand-primary/20 text-brand-primary px-2 py-1 rounded tracking-widest">
+            <span className="text-xs bg-brand-primary/20 text-brand-primary px-2 py-1 rounded tracking-widest">
               {transactions.items.length} RECORDS
             </span>
           </div>

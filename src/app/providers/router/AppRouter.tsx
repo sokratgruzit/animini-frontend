@@ -9,11 +9,13 @@ import {
   DashboardPage,
   ActivatePage,
   WalletPage,
+  AuthorPage,
 } from '../../../pages';
 import { type RootState } from '../../store';
 import { ROUTES } from '../../../shared/config/routes';
 import { AuthLayout } from './ui/AuthLayout';
 import { MainLayout } from './ui/MainLayout';
+import { RoleGuard } from './ui/RoleGuard';
 
 export const AppRouter = () => {
   const isAuth = useSelector((state: RootState) => state.user.isAuth);
@@ -33,7 +35,6 @@ export const AppRouter = () => {
       ],
     },
     {
-      // Protected routes wrapped in MainLayout
       element: isAuth ? <MainLayout /> : <Navigate to={ROUTES.AUTH} />,
       children: [
         {
@@ -43,6 +44,15 @@ export const AppRouter = () => {
         {
           path: ROUTES.WALLET,
           element: <WalletPage />,
+        },
+        {
+          element: <RoleGuard allowedRoles={['AUTHOR']} />,
+          children: [
+            {
+              path: ROUTES.AUTHOR,
+              element: <AuthorPage />,
+            },
+          ],
         },
       ],
     },

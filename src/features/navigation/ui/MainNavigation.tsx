@@ -1,23 +1,33 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '../../../shared/ui';
 import { cn } from '../../../shared/lib/clsx';
 import { closePanel } from '../../panel';
 import { MAIN_NAV_ITEMS } from '../../../shared/config/navigation';
+import { selectUserRoles } from '../../../entities/user/model/selectors';
 
 export const MainNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
+  // Get current user roles from state
+  const userRoles = useSelector(selectUserRoles);
+
   const handleNavClick = (path: string) => {
     navigate(path);
     dispatch(closePanel('left'));
   };
 
+  // Filter items based on requiredRole and user permissions
+  const filteredNavItems = MAIN_NAV_ITEMS.filter((item) => {
+    if (!item.requiredRole) return true;
+    return userRoles.includes(item.requiredRole);
+  });
+
   return (
     <nav className="flex flex-col gap-2">
-      {MAIN_NAV_ITEMS.map((item) => {
+      {filteredNavItems.map((item) => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
 
