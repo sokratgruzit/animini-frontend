@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom'; // Added useLocation
 import { IoMenu, IoLogOutOutline } from 'react-icons/io5';
+import { ROUTES } from '../../../../shared/config/routes'; // Assume routes are here
 import type { RootState, AppDispatch } from '../../../store';
 import {
   closePanel,
@@ -18,6 +19,14 @@ import {
 import { MainNavigation } from '../../../../features/navigation/ui';
 import { DepositWidget } from '../../../../features/wallet/ui';
 
+// Helper to determine page title based on route
+const getPageTitle = (pathname: string): string => {
+  if (pathname === ROUTES.DASHBOARD) return 'Dashboard';
+  if (pathname === ROUTES.WALLET) return 'My Wallet';
+  if (pathname === ROUTES.AUTHOR) return 'Author Workspace';
+  return '';
+};
+
 const panelContentMap: Record<
   NonNullable<PanelContentType>,
   React.ReactNode
@@ -31,7 +40,10 @@ const panelContentMap: Record<
 
 export const MainLayout = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
   const panels = useSelector((state: RootState) => state.panel.panels);
+
+  const pageTitle = getPageTitle(location.pathname);
 
   const handleClose = (side: PanelSide) => {
     dispatch(closePanel(side));
@@ -39,23 +51,28 @@ export const MainLayout = () => {
 
   return (
     <div className="relative flex min-h-screen bg-dark-base text-surface-100 overflow-hidden">
-      {/* 1. Global Navigation Trigger */}
-      <div className="fixed top-6 left-6 z-40">
-        <Button
-          variant="secondary"
-          onClick={() => {
-            dispatch(togglePanel({ side: 'left', content: 'navigation' }));
-          }}
-          className="w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-glass-bg border-glass-border backdrop-blur-xl"
-        >
-          <IoMenu size={24} className="text-brand-primary" />
-        </Button>
-      </div>
+      {/* 1. Fixed Header Bar (The "Safe Zone") */}
+      <header className="fixed top-0 left-0 right-0 h-20 z-40 px-6 flex items-center bg-dark-base/60 backdrop-blur-xl border-b border-glass-border">
+        <div className="flex items-center gap-6">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              dispatch(togglePanel({ side: 'left', content: 'navigation' }));
+            }}
+            className="w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-glass-bg border-glass-border shadow-lg"
+          >
+            <IoMenu size={24} className="text-brand-primary" />
+          </Button>
+
+          <h1 className="text-3xl font-black text-surface-100 tracking-tight uppercase">
+            {pageTitle}
+          </h1>
+        </div>
+      </header>
 
       {/* 2. Dynamic Panels Rendering */}
       {(Object.keys(panels) as PanelSide[]).map((side) => {
         const { isOpen, content } = panels[side];
-
         return (
           <PanelRoot
             key={side}
@@ -71,7 +88,6 @@ export const MainLayout = () => {
                 />
                 <PanelContent className="flex flex-col h-full">
                   <div className="flex-1">{panelContentMap[content]}</div>
-
                   {content === 'navigation' && (
                     <div className="mt-auto pt-6 border-t border-glass-border">
                       <Button
@@ -92,7 +108,7 @@ export const MainLayout = () => {
       })}
 
       {/* 3. Main Content Canvas */}
-      <main className="flex-1 relative w-full h-screen overflow-auto">
+      <main className="flex-1 relative w-full h-screen overflow-auto pt-24 pb-10">
         <Outlet />
       </main>
     </div>

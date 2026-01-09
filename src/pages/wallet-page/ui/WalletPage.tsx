@@ -37,10 +37,6 @@ const WalletPage = () => {
     dispatch(getWalletData());
     dispatch(fetchTransactions(true));
 
-    /**
-     * Check sessionStorage for a pending transaction after return.
-     * We use local state to keep the LoadingScreen active until the thunk finishes.
-     */
     const pendingId = sessionStorage.getItem('pendingTransactionId');
     if (pendingId) {
       setVerifyingId(pendingId);
@@ -68,9 +64,6 @@ const WalletPage = () => {
     dispatch(togglePanel({ side: 'right', content: 'wallet' }));
   };
 
-  /**
-   * Determine if we show the overlay loader based on local verification state
-   */
   const showOverlay = !!verifyingId && isLoading;
 
   return (
@@ -79,10 +72,11 @@ const WalletPage = () => {
         {showOverlay && <LoadingScreen message="Verifying Transaction..." />}
       </AnimatePresence>
 
-      {/* 1. Header Section - Fixed (shrink-0) */}
-      <div className="mt-6 px-6 md:px-8 shrink-0">
+      {/* 1. Header Section - Cleaned from manual offsets */}
+      <div className="px-6 md:px-8 shrink-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3 w-full order-2 md:order-1 md:w-auto md:ml-16">
+          {/* Removed md:ml-16 as MainLayout now handles the safe zone */}
+          <div className="flex flex-wrap items-center gap-3 w-full order-2 md:order-1 md:w-auto">
             <StatCard
               title="Balance"
               value={balance.toLocaleString()}
@@ -99,7 +93,7 @@ const WalletPage = () => {
             />
           </div>
 
-          <div className="flex items-center gap-2 h-12 w-full order-1 md:order-2 md:w-auto ml-auto shrink-0 justify-end">
+          <div className="flex items-center gap-2 h-12 w-full order-1 md:order-2 md:w-auto shrink-0 justify-end">
             <Button
               variant="primary"
               onClick={handleOpenDeposit}

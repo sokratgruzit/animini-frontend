@@ -10,6 +10,7 @@ import {
   ActivatePage,
   WalletPage,
   AuthorPage,
+  AuthorSeriesDetailsPage,
 } from '../../../pages';
 import { type RootState } from '../../store';
 import { ROUTES } from '../../../shared/config/routes';
@@ -51,6 +52,11 @@ export const AppRouter = () => {
             {
               path: ROUTES.AUTHOR,
               element: <AuthorPage />,
+            },
+            // Added: Series Management Page
+            {
+              path: ROUTES.AUTHOR_SERIES_DETAILS,
+              element: <AuthorSeriesDetailsPage />,
             },
           ],
         },

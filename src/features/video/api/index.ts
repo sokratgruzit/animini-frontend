@@ -1,5 +1,10 @@
+import axios from 'axios';
 import { $api } from '../../../shared/api';
-import { type CreateVideoInput } from '../model/video-schema';
+import {
+  type CreateVideoInput,
+  type CreateSeriesInput,
+  type UploadRequestInput,
+} from '../model';
 
 export interface VideoItem {
   id: string;
@@ -7,29 +12,89 @@ export interface VideoItem {
   description?: string;
   url: string;
   status: string;
+  seriesId: string;
+  createdAt: string;
+  _count?: {
+    votes: number;
+    reviews: number;
+  };
+}
+
+export interface SeriesItem {
+  id: string;
+  title: string;
+  description?: string;
+  coverUrl?: string;
   votesRequired: number;
   collectedFunds: number;
+  videos: VideoItem[];
   createdAt: string;
 }
 
-interface GetAuthorVideosResponse {
+interface GetAuthorWorkspaceResponse {
   success: boolean;
-  items: VideoItem[];
+  items: SeriesItem[];
 }
 
 /**
- * Fetch all videos belonging to the current author
+ * Fetch full author workspace (Series with nested Videos)
  */
-export const getAuthorVideos = async (): Promise<GetAuthorVideosResponse> => {
-  const { data } = await $api.get<GetAuthorVideosResponse>('/videos/my');
+export const getAuthorWorkspace =
+  async (): Promise<GetAuthorWorkspaceResponse> => {
+    const { data } =
+      await $api.get<GetAuthorWorkspaceResponse>('/videos/workspace');
+    return data;
+  };
+
+/**
+ * 1. Request a signed upload URL from backend
+ */
+export const getUploadUrl = async (payload: UploadRequestInput) => {
+  const { data } = await $api.post('/videos/upload-url', payload);
   return data;
 };
 
 /**
- * AUTHOR action: Create a new video series
- * @param payload - Validated video data from the form
+ * 2. Upload file directly to Supabase storage
+ */
+export const uploadFileToStorage = async (
+  url: string,
+  file: File,
+  onProgress?: (percent: number) => void
+) => {
+  return axios.put(url, file, {
+    headers: { 'Content-Type': file.type },
+    onUploadProgress: (progressEvent) => {
+      const percent = Math.round(
+        (progressEvent.loaded * 100) / (progressEvent.total || 1)
+      );
+      if (onProgress) onProgress(percent);
+    },
+  });
+};
+
+/**
+ * 3. Create a new Series container
+ */
+export const createSeries = async (payload: CreateSeriesInput) => {
+  const { data } = await $api.post('/videos/series', payload);
+  return data;
+};
+
+/**
+ * 4. Finalize video (episode) creation in database
  */
 export const createVideo = async (payload: CreateVideoInput) => {
   const { data } = await $api.post('/videos', payload);
+  return data;
+};
+
+/**
+ * Fetch a single series with its episodes by ID
+ */
+export const getSeriesDetails = async (
+  id: string
+): Promise<{ success: boolean; data: SeriesItem }> => {
+  const { data } = await $api.get(`/videos/series/${id}`);
   return data;
 };
