@@ -7,7 +7,6 @@ export const ROUTES = {
   WALLET: '/wallet',
   ACTIVATE: '/activate/:link',
   AUTHOR: '/author',
-  // Dynamic route for managing a specific series
   AUTHOR_SERIES_DETAILS: '/author/series/:id',
 } as const;
 

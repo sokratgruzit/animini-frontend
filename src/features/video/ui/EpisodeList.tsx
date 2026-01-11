@@ -1,4 +1,8 @@
+import { useState } from 'react';
 import { IoPlayCircleOutline, IoTimeOutline } from 'react-icons/io5';
+import { VideoStatsCard, Modal, VideoPlayer, Button } from '../../../shared/ui';
+import { useAppSelector } from '../../../app/store';
+import { selectIsAuthor } from '../../../entities/user';
 import { type VideoItem } from '../api';
 
 interface EpisodeListProps {
@@ -7,17 +11,17 @@ interface EpisodeListProps {
   error: string | null;
 }
 
-/**
- * Renders episodes as individual grid items to align with the creation form.
- */
 export const EpisodeList = ({ videos, isLoading, error }: EpisodeListProps) => {
+  const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
+  const isAuthor = useAppSelector(selectIsAuthor);
+
   if (isLoading) {
     return (
       <>
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-104px w-full panel-glass animate-pulse rounded-xl"
+            className="h-full min-h-80 w-full panel-glass animate-pulse rounded-xl"
           />
         ))}
       </>
@@ -26,15 +30,15 @@ export const EpisodeList = ({ videos, isLoading, error }: EpisodeListProps) => {
 
   if (error) {
     return (
-      <div className="md:col-span-2 xl:col-span-3 p-6 panel-glass border-brand-danger/20 text-brand-danger text-xs font-bold uppercase tracking-widest">
-        {error}
+      <div className="md:col-span-2 p-6 panel-glass border-brand-danger/20 text-brand-danger text-xs font-bold uppercase tracking-widest">
+        Error: {error}
       </div>
     );
   }
 
   if (videos.length === 0) {
     return (
-      <div className="md:col-span-2 xl:col-span-3 panel-glass p-16 text-center border-dashed border-glass-border rounded-2xl">
+      <div className="md:col-span-2 panel-glass p-16 text-center border-dashed border-glass-border rounded-2xl">
         <div className="flex justify-center mb-4">
           <IoPlayCircleOutline
             size={48}
@@ -50,50 +54,63 @@ export const EpisodeList = ({ videos, isLoading, error }: EpisodeListProps) => {
 
   return (
     <>
-      {videos.map((video, index) => (
-        <div
-          key={video.id}
-          className="group flex items-center gap-5 p-4 panel-glass hover:bg-white/0.03 transition-all duration-300 rounded-xl border-glass-border overflow-hidden h-104px"
-        >
-          {/* Index / Number */}
-          <div className="text-xl font-black text-surface-600 group-hover:text-brand-primary transition-colors min-w-2rem">
-            {(index + 1).toString().padStart(2, '0')}
-          </div>
+      {videos.map((video, index) => {
+        const canWatch = isAuthor || video.isReleased;
 
-          {/* Mini Preview */}
-          <div className="relative h-16 aspect-video bg-dark-base rounded-lg overflow-hidden border border-glass-border shrink-0">
-            <video
-              src={`${video.url}#t=0.5`}
-              className="w-full h-full object-cover opacity-60"
-              preload="metadata"
-            />
-          </div>
-
-          {/* Metadata */}
-          <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-bold text-surface-100 truncate group-hover:text-brand-primary transition-colors">
-              {video.title}
-            </h4>
-            <div className="flex items-center gap-3 mt-1">
-              <span className="flex items-center gap-1 text-[10px] text-surface-500 font-bold uppercase tracking-wider">
+        return (
+          <VideoStatsCard
+            key={video.id}
+            title={video.title}
+            url={video.url}
+            status={video.isReleased ? 'RELEASED' : 'FUNDING'}
+            index={index + 1}
+            collected={video.collectedFunds}
+            required={video.votesRequired}
+            className="w-full h-full"
+            metadata={
+              <div className="flex items-center gap-2 text-[10px] text-surface-400 font-bold uppercase tracking-wider">
                 <IoTimeOutline size={12} />
                 {new Date(video.createdAt).toLocaleDateString()}
-              </span>
-              <span className="h-1 w-1 rounded-full bg-surface-700" />
-              <span className="text-[10px] text-brand-primary font-black uppercase tracking-widest">
-                {video.status}
-              </span>
+              </div>
+            }
+            actions={
+              <Button
+                variant={canWatch ? 'primary' : 'outline'}
+                onClick={() => {
+                  setSelectedVideo(video);
+                  console.log('hi');
+                }}
+                className="py-1 px-4 text-[10px] font-black uppercase tracking-widest w-auto rounded-lg"
+              >
+                {isAuthor ? 'Review' : video.isReleased ? 'Watch' : 'Preview'}
+              </Button>
+            }
+          />
+        );
+      })}
+
+      <Modal
+        isOpen={Boolean(selectedVideo)}
+        onClose={() => setSelectedVideo(null)}
+      >
+        {selectedVideo && (
+          <div className="flex flex-col">
+            <div className="p-6 border-b border-glass-border bg-white/5">
+              <h2 className="text-lg font-black text-white uppercase tracking-tight truncate pr-12">
+                {selectedVideo.title}
+              </h2>
+            </div>
+            {/* FORCE RELOAD WITH KEY */}
+            <div className="bg-black">
+              <VideoPlayer
+                key={selectedVideo.id}
+                url={selectedVideo.url}
+                autoPlay={true}
+              />
             </div>
           </div>
-
-          {/* Actions */}
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity pr-2">
-            <button className="text-xs font-black text-surface-400 hover:text-white uppercase tracking-widest">
-              View
-            </button>
-          </div>
-        </div>
-      ))}
+        )}
+      </Modal>
     </>
   );
 };

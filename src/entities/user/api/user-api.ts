@@ -1,7 +1,7 @@
 import { $api } from '../../../shared/api';
 
 /**
- * Response structure from the backend /refresh endpoint
+ * Response structure from the backend /refresh and /verify-email endpoints
  */
 interface AuthResponse {
   user: {
@@ -33,9 +33,18 @@ export const logoutRequest = async () => {
 };
 
 /**
- * Sends the activation link to the server (to be used later).
+ * FIXED: Sends the activation token to the backend verify-email endpoint.
+ * Matches router.post('/verify-email') logic.
  */
-export const activateRequest = async (activationLink: string) => {
-  const response = await $api.get(`/auth/activate/${activationLink}`);
+export const activateRequest = async (token: string) => {
+  const response = await $api.post('/auth/verify-email', { token });
+  return response.data;
+};
+
+/**
+ * Triggers a new verification email for the authenticated user.
+ */
+export const resendEmailRequest = async () => {
+  const response = await $api.get('/auth/resend-email');
   return response.data;
 };

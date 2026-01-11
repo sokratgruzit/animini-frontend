@@ -13,3 +13,8 @@ export * from './table';
 export * from './stat-card/StatCard';
 export * from './spinner/Spinner';
 export * from './video-stats-card/VideoStatsCard';
+export * from './portal/Portal';
+export * from './video-player/VideoPlayer';
+export * from './modal/Modal';
+export * from './progress-bar/ProgressBar';
+export * from './badge/Badge';

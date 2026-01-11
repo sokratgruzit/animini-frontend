@@ -3,9 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createVideoSchema, type CreateVideoInput } from '../model';
 import { createVideo, getUploadUrl, uploadFileToStorage } from '../api';
+import { Button, ProgressBar } from '../../../shared/ui';
 
 interface CreateVideoFormProps {
-  seriesId: string; // Required to link the episode to a project
+  seriesId: string;
   onSuccess?: () => void;
 }
 
@@ -26,7 +27,7 @@ export const CreateVideoForm = ({
   } = useForm<CreateVideoInput>({
     resolver: zodResolver(createVideoSchema),
     defaultValues: {
-      seriesId, // Pre-bind the series ID
+      seriesId,
     },
   });
 
@@ -38,26 +39,22 @@ export const CreateVideoForm = ({
       setIsUploading(true);
       setProgress(0);
 
-      // FIXED: Added seriesId to the payload to satisfy the backend Zod schema
       const { uploadUrl, fileKey } = await getUploadUrl({
         fileName: file.name,
         fileType: file.type,
         seriesId: seriesId,
       });
 
-      // 2. Upload file directly to Supabase
       await uploadFileToStorage(uploadUrl, file, (percent) => {
         setProgress(percent);
       });
 
-      // 3. Construct public URL and set it to form state
       const baseUrl = import.meta.env.VITE_SUPABASE_URL;
       const publicUrl = `${baseUrl}/storage/v1/object/public/animini-videos/${fileKey}`;
 
       setValue('url', publicUrl, { shouldValidate: true });
     } catch (error) {
       console.error('Upload failed', error);
-      alert('File upload failed. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -79,7 +76,7 @@ export const CreateVideoForm = ({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="panel-glass p-6 space-y-4"
+      className="panel-glass p-6 space-y-4 flex flex-col h-full"
     >
       <div className="space-y-1">
         <label className="text-xs font-black uppercase tracking-widest text-surface-400">
@@ -97,14 +94,14 @@ export const CreateVideoForm = ({
         )}
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-1 flex-1 flex flex-col">
         <label className="text-xs font-black uppercase tracking-widest text-surface-400">
           Episode Summary
         </label>
         <textarea
           {...register('description')}
           placeholder="Briefly describe what happens in this part"
-          className="w-full bg-dark-base border border-glass-border rounded-md px-4 py-2 text-sm text-surface-100 focus:outline-none focus:border-brand-primary transition-colors resize-none h-24"
+          className="w-full bg-dark-base border border-glass-border rounded-md px-4 py-2 text-sm text-surface-100 focus:outline-none focus:border-brand-primary transition-colors resize-none flex-1 min-h-24"
         />
       </div>
 
@@ -125,18 +122,11 @@ export const CreateVideoForm = ({
           className="border-2 border-dashed border-glass-border rounded-xl p-6 text-center cursor-pointer hover:border-brand-primary/50 transition-all bg-dark-base/50 group"
         >
           {progress > 0 ? (
-            <div className="space-y-2">
-              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-brand-primary">
-                <span>{progress === 100 ? 'Ready' : 'Uploading'}</span>
-                <span>{progress}%</span>
-              </div>
-              <div className="h-1 w-full bg-glass-border rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-brand-primary transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
+            <ProgressBar
+              progress={progress}
+              label={progress === 100 ? 'Ready' : 'Uploading'}
+              variant="primary"
+            />
           ) : (
             <span className="text-xs font-bold uppercase tracking-widest text-surface-400 group-hover:text-brand-primary transition-colors">
               Select Video File
@@ -154,13 +144,14 @@ export const CreateVideoForm = ({
         )}
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={isSubmitting || isUploading || progress < 100}
-        className="w-full bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-30 text-white text-[10px] font-black py-4 rounded-xl transition-all duration-300 uppercase tracking-[0.2em] shadow-lg shadow-brand-primary/20"
+        isLoading={isSubmitting}
+        disabled={isUploading || progress < 100}
+        className="w-full text-[10px] tracking-[0.2em] uppercase py-4"
       >
-        {isSubmitting ? 'Syncing...' : 'Add to Series'}
-      </button>
+        Add to Series
+      </Button>
     </form>
   );
 };

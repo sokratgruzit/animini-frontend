@@ -13,6 +13,12 @@ export interface VideoItem {
   url: string;
   status: string;
   seriesId: string;
+  /**
+   * New funding fields moved from Series to Video
+   */
+  votesRequired: number;
+  collectedFunds: number;
+  isReleased: boolean;
   createdAt: string;
   _count?: {
     votes: number;
@@ -25,8 +31,10 @@ export interface SeriesItem {
   title: string;
   description?: string;
   coverUrl?: string;
-  votesRequired: number;
-  collectedFunds: number;
+  /**
+   * Changed from votesRequired/collectedFunds to totalEarnings
+   */
+  totalEarnings: number;
   videos: VideoItem[];
   createdAt: string;
 }
