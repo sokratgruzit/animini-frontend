@@ -4,10 +4,8 @@ import { AnimatePresence } from 'framer-motion';
 import {
   IoArrowUpCircleOutline,
   IoArrowDownCircleOutline,
-  IoDiamondOutline,
-  IoShieldCheckmarkOutline,
 } from 'react-icons/io5';
-import { Button, StatCard, LoadingScreen } from '../../../shared/ui';
+import { Button, LoadingScreen } from '../../../shared/ui';
 import { Table, THead, TBody, TH, TR } from '../../../shared/ui/table/Table';
 import { TransactionRow } from '../../../entities/wallet/ui/TransactionRow';
 import { WALLET_COLUMNS } from '../../../shared/config/columns';
@@ -26,7 +24,7 @@ const WalletPage = () => {
   /**
    * Server State management via React Query hooks
    */
-  const { balance, reputation, isLoading: isWalletLoading } = useWallet();
+  const { isLoading: isWalletLoading } = useWallet();
 
   const {
     transactions,
@@ -90,23 +88,6 @@ const WalletPage = () => {
 
       <div className="shrink-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3 w-full order-2 md:order-1 md:w-auto">
-            <StatCard
-              title="Balance"
-              value={balance.toLocaleString()}
-              icon={IoDiamondOutline}
-              iconColor="text-brand-primary"
-              className="w-full sm:flex-1 md:flex-none md:w-44 panel-glass border-glass-border"
-            />
-            <StatCard
-              title="Reputation"
-              value={reputation}
-              icon={IoShieldCheckmarkOutline}
-              iconColor="text-brand-success"
-              className="w-full sm:flex-1 md:flex-none md:w-44 panel-glass border-glass-border"
-            />
-          </div>
-
           <div className="flex items-center gap-2 h-12 w-full order-1 md:order-2 md:w-auto shrink-0 justify-end">
             <Button
               variant="primary"

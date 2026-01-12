@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import { GET_EVENTS_URL } from '../../config/constants';
-import { QUERY_KEYS } from '../../config/query-keys';
+import { QUERY_KEYS, VIDEO_KEYS } from '../../config/query-keys';
 import { updateUser, resetUserState } from '../../../entities/user/model/slice';
 import { addNotification } from '../../model/notification-slice';
 import { type RootState } from '../../../app/store';
@@ -28,25 +28,35 @@ export const useEventSubscriber = () => {
         const { type, data } = JSON.parse(event.data);
 
         switch (type) {
-          // --- Wallet & Balance Events ---
+          // --- User & Auth Events ---
+          case 'USER_UPDATED':
           case 'BALANCE_UPDATED':
-            // 1. Update global user object in Redux if needed
             dispatch(updateUser(data));
-            // 2. CRITICAL: Invalidate React Query wallet cache
-            // This is what makes your balance update instantly!
-            queryClient.invalidateQueries({
-              queryKey: QUERY_KEYS.wallet.balance(),
-            });
+
+            if (data.emailVerified === false) {
+              dispatch(
+                addNotification({
+                  type: 'warning',
+                  message:
+                    'Please verify your email to unlock all platform features.',
+                })
+              );
+            }
+
+            if (type === 'BALANCE_UPDATED') {
+              queryClient.invalidateQueries({
+                queryKey: QUERY_KEYS.wallet.balance(),
+              });
+            }
             break;
 
           case 'TRANSACTION_SUCCESS':
             dispatch(
               addNotification({
                 type: 'success',
-                message: data.message || 'Deposit successful!',
+                message: data.message || 'Transaction successful!',
               })
             );
-            // Refresh transaction history as well
             queryClient.invalidateQueries({
               queryKey: QUERY_KEYS.wallet.transactions(),
             });
@@ -66,29 +76,53 @@ export const useEventSubscriber = () => {
             dispatch(
               addNotification({
                 type: 'info',
-                message: `Video "${data.title}" status: ${data.status}`,
+                message: `Video "${data.title}" status: ${data.status.toLowerCase()}`,
               })
             );
-            queryClient.invalidateQueries({
-              queryKey: QUERY_KEYS.videos.workspace(),
-            });
+            queryClient.invalidateQueries({ queryKey: VIDEO_KEYS.workspace() });
             if (data.seriesId) {
               queryClient.invalidateQueries({
-                queryKey: QUERY_KEYS.videos.details(data.seriesId),
+                queryKey: VIDEO_KEYS.details(data.seriesId),
+              });
+            }
+            break;
+
+          case 'VIDEO_CREATED':
+            dispatch(
+              addNotification({
+                type: 'success',
+                message: data.message || 'Episode added successfully!',
+              })
+            );
+
+            // Invalidate workspace to show new video in the tree
+            queryClient.invalidateQueries({ queryKey: VIDEO_KEYS.workspace() });
+
+            // Invalidate transactions to show the creation fee
+            queryClient.invalidateQueries({
+              queryKey: QUERY_KEYS.wallet.transactions(),
+            });
+
+            // Invalidate balance to ensure it matches the fee deduction
+            queryClient.invalidateQueries({
+              queryKey: QUERY_KEYS.wallet.balance(),
+            });
+
+            if (data.seriesId) {
+              queryClient.invalidateQueries({
+                queryKey: VIDEO_KEYS.details(data.seriesId),
               });
             }
             break;
 
           case 'SERIES_CREATED':
-            queryClient.invalidateQueries({
-              queryKey: QUERY_KEYS.videos.workspace(),
-            });
+            queryClient.invalidateQueries({ queryKey: VIDEO_KEYS.workspace() });
             break;
 
           // --- Auth Events ---
           case 'USER_LOGOUT':
             dispatch(resetUserState());
-            queryClient.clear(); // Wipe all cache on logout
+            queryClient.clear();
             break;
 
           default:

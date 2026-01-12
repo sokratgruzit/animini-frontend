@@ -1,15 +1,29 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { IoArrowBackOutline, IoWalletOutline } from 'react-icons/io5';
+import { useSelector } from 'react-redux';
+import {
+  IoArrowBackOutline,
+  IoWalletOutline,
+  IoLockClosedOutline,
+  IoMailUnreadOutline,
+} from 'react-icons/io5';
 import { Button, Badge } from '../../../shared/ui';
 import { CreateVideoForm, EpisodeList } from '../../../features/video/ui';
 import { useSeriesDetails } from '../../../features/video/model/use-series-details';
 import { ROUTES } from '../../../shared/config/routes';
+import { type RootState } from '../../../app/store';
 
 const AuthorSeriesDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  // 1. Get series data via React Query
   const { series, isLoading, error, refresh } = useSeriesDetails(id || '');
+
+  /**
+   * 2. Accessing user data correctly from Redux state.
+   * Based on your slice, the user object is inside the 'data' field.
+   */
+  const userData = useSelector((state: RootState) => state.user.data);
 
   if (!id) {
     return (
@@ -18,6 +32,15 @@ const AuthorSeriesDetailsPage = () => {
       </div>
     );
   }
+
+  /**
+   * BUSINESS LOGIC:
+   * - Block if email is not verified (checking userData?.emailVerified).
+   * - Block if there's any video that hasn't been released yet (active funding).
+   */
+  const isEmailUnverified = userData?.emailVerified === false;
+  const hasActiveFunding = series?.videos.some((video) => !video.isReleased);
+  const isUploadLocked = isEmailUnverified || hasActiveFunding;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
@@ -56,8 +79,32 @@ const AuthorSeriesDetailsPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
           <div className="h-full">
-            <CreateVideoForm seriesId={id} onSuccess={refresh} />
+            {/* Conditional Rendering based on verification and funding status */}
+            {isUploadLocked && !isLoading ? (
+              <div className="panel-glass p-8 h-full flex flex-col items-center justify-center text-center space-y-4 border-dashed border-brand-primary/20">
+                <div className="w-16 h-16 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary">
+                  {isEmailUnverified ? (
+                    <IoMailUnreadOutline size={32} />
+                  ) : (
+                    <IoLockClosedOutline size={32} />
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-surface-100">
+                    Upload Locked
+                  </h3>
+                  <p className="text-xs text-surface-400 font-medium leading-relaxed max-w-240px">
+                    {isEmailUnverified
+                      ? 'Please verify your email address to unlock production tools.'
+                      : 'You can only upload a new episode once the current one is fully funded and released.'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <CreateVideoForm seriesId={id} onSuccess={refresh} />
+            )}
           </div>
+
           <EpisodeList
             videos={series?.videos || []}
             isLoading={isLoading}

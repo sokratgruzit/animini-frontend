@@ -22,6 +22,7 @@ import {
 } from '../../../../shared/ui';
 import { MainNavigation } from '../../../../features/navigation/ui';
 import { DepositWidget } from '../../../../features/wallet/ui';
+import { UserStats } from '../../../../widgets/header';
 import { cn } from '../../../../shared/lib/clsx';
 
 const getPageTitle = (pathname: string): string => {
@@ -57,22 +58,35 @@ export const MainLayout = () => {
 
   return (
     <div className="relative flex min-h-screen bg-dark-base text-surface-100 overflow-hidden">
-      {/* 1. Fixed Header Bar */}
-      <header className="fixed top-0 left-0 right-0 h-20 z-40 px-6 flex items-center bg-dark-base/60 backdrop-blur-xl border-b border-glass-border">
-        <div className="flex items-center gap-6">
-          <Button
-            variant="secondary"
-            onClick={() => {
-              dispatch(togglePanel({ side: 'left', content: 'navigation' }));
-            }}
-            className="w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-glass-bg border-glass-border shadow-lg"
-          >
-            <IoMenu size={24} className="text-brand-primary" />
-          </Button>
+      {/* 1. Header Bar - Dynamic Height */}
+      <header className="fixed top-0 left-0 right-0 z-40 bg-dark-base/60 backdrop-blur-xl border-b border-glass-border">
+        {/* Top Row: Burger + Title */}
+        <div className="h-20 px-6 flex items-center justify-between">
+          <div className="flex items-center gap-6 overflow-hidden">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                dispatch(togglePanel({ side: 'left', content: 'navigation' }));
+              }}
+              className="w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-glass-bg border-glass-border shadow-lg shrink-0"
+            >
+              <IoMenu size={24} className="text-brand-primary" />
+            </Button>
 
-          <h1 className="text-3xl font-black text-surface-100 tracking-tight uppercase">
-            {pageTitle}
-          </h1>
+            <h1 className="text-2xl md:text-3xl font-black text-surface-100 tracking-tight uppercase truncate">
+              {pageTitle}
+            </h1>
+          </div>
+
+          {/* Desktop Stats: Shown on the right */}
+          <div className="hidden md:block">
+            <UserStats />
+          </div>
+        </div>
+
+        {/* Bottom Row: Stats on Mobile only */}
+        <div className="md:hidden px-6 pb-4">
+          <UserStats />
         </div>
       </header>
 
@@ -117,8 +131,9 @@ export const MainLayout = () => {
       <main
         className={cn(
           'flex-1 relative w-full h-screen overflow-auto pb-10 transition-all duration-300',
-          // FIXED: Adjusted padding for vertical mobile banner (pt-64) and desktop (pt-44)
-          isUnverified ? 'pt-64 md:pt-44' : 'pt-20'
+          // Mobile Papping: 20 (Header) + 16 (Mobile Stats) = 36
+          // If Unverified, add extra height for Banner
+          isUnverified ? 'pt-340px md:pt-44' : 'pt-40 md:pt-20'
         )}
       >
         <VerificationBanner />
