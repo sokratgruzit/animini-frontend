@@ -76,10 +76,7 @@ export const EpisodeList = ({ videos, isLoading, error }: EpisodeListProps) => {
             actions={
               <Button
                 variant={canWatch ? 'primary' : 'outline'}
-                onClick={() => {
-                  setSelectedVideo(video);
-                  console.log('hi');
-                }}
+                onClick={() => setSelectedVideo(video)}
                 className="py-1 px-4 text-[10px] font-black uppercase tracking-widest w-auto rounded-lg"
               >
                 {isAuthor ? 'Review' : video.isReleased ? 'Watch' : 'Preview'}

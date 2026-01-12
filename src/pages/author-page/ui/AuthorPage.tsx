@@ -5,7 +5,7 @@ const AuthorPage = () => {
   const { series, isLoading, error, refresh } = useAuthorWorkspace();
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="max-w-7xl mx-auto py-8">
       <div className="space-y-6">
         <h2 className="text-xs font-black uppercase tracking-super-wide text-surface-400 px-1">
           Production Management

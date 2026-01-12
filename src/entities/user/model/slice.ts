@@ -6,15 +6,22 @@ import {
 import { checkAuthRequest, logoutRequest } from '../api/user-api';
 
 /**
- * User profile structure synchronized with the backend (2026)
+ * Synchronized User interface with backend schema
  */
-interface User {
-  id: string;
+export interface User {
+  id: number; // Changed to number to match backend id: Int
   email: string;
-  name: string;
+  name: string | null;
   emailVerified: boolean;
   isAdmin: boolean;
   roles: string[];
+  avatarUrl: string | null;
+  bio: string | null;
+  settings: Record<string, any>;
+  balance: number;
+  reputation: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface UserState {
@@ -48,7 +55,6 @@ export const checkAuth = createAsyncThunk(
 
 /**
  * Async Thunk for logging out.
- * Ensures the session is terminated on the backend and client is cleaned.
  */
 export const userLogout = createAsyncThunk(
   'user/logout',
@@ -58,10 +64,6 @@ export const userLogout = createAsyncThunk(
     } catch (e) {
       return thunkAPI.rejectWithValue('Logout failed');
     } finally {
-      /**
-       * Always remove token even if the server request fails
-       * to prevent local state persistence.
-       */
       localStorage.removeItem('accessToken');
     }
   }
@@ -79,9 +81,14 @@ export const userSlice = createSlice({
       state.isAppReady = action.payload;
     },
     /**
-     * Synchronous state reset.
-     * Used for 401 errors to avoid extra API calls.
+     * DYNAMIC UPDATE: Used by SSE (Server-Sent Events)
+     * to patch user data in real-time.
      */
+    updateUser: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.data) {
+        state.data = { ...state.data, ...action.payload };
+      }
+    },
     resetUserState: (state) => {
       state.data = null;
       state.isAuth = false;
@@ -100,9 +107,6 @@ export const userSlice = createSlice({
         state.isAuth = false;
         state.isAppReady = true;
       })
-      /**
-       * Handle state cleanup regardless of API response success or failure
-       */
       .addCase(userLogout.fulfilled, (state) => {
         state.data = null;
         state.isAuth = false;
@@ -114,4 +118,5 @@ export const userSlice = createSlice({
   },
 });
 
-export const { setAuth, setAppReady, resetUserState } = userSlice.actions;
+export const { setAuth, setAppReady, resetUserState, updateUser } =
+  userSlice.actions;

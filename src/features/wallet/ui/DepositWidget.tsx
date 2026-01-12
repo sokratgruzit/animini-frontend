@@ -1,15 +1,12 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IoWalletOutline } from 'react-icons/io5';
-import { Input, Button, ErrorMessage, Spinner } from '../../../shared/ui';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '../../../app/store';
-import { depositFunds, setError } from '../../../entities/wallet/model/slice';
+import { Input, Button, ErrorMessage } from '../../../shared/ui';
+import { useDepositFunds } from '../../../entities/wallet/model/use-wallet-mutations';
 import { depositSchema, type DepositSchema } from '../model';
 
 export const DepositWidget = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { isLoading, error } = useSelector((state: RootState) => state.wallet);
+  const { mutate: deposit, isPending: isLoading, error } = useDepositFunds();
 
   const {
     register,
@@ -23,26 +20,27 @@ export const DepositWidget = () => {
   });
 
   const onSubmit = (data: DepositSchema) => {
-    dispatch(setError(null));
+    // setError(null) is not needed; React Query handles error state automatically
 
-    dispatch(depositFunds(data.amount))
-      .unwrap()
-      .then(() => {
+    // Call the mutation function instead of dispatching a thunk
+    deposit(data.amount, {
+      onSuccess: () => {
         /**
          * Reset local form state.
-         * Redirection logic is handled within the thunk.
+         * Redirection logic is handled within the mutation hook.
          */
         reset();
-      })
-      .catch(() => {
-        // Error state is managed by Redux slice
-      });
+      },
+      // onError handled by global error boundary or useMutation options
+    });
   };
 
   /**
    * Determine if the UI should show redirection state
+   * Error state is managed automatically by the useMutation hook
    */
   const isRedirecting = isLoading && !error;
+  const errorMessage = error instanceof Error ? error.message : null;
 
   return (
     <form
@@ -59,27 +57,21 @@ export const DepositWidget = () => {
           Enter the amount you wish to deposit into your account balance.
         </p>
 
-        {isLoading ? (
-          <div className="px-4 py-3 bg-glass-bg border border-glass-border rounded-xl outline-none transition-all duration-300 w-full">
-            <Spinner message="Processing..." />
-          </div>
-        ) : (
-          <Input
-            {...register('amount', { valueAsNumber: true })}
-            label="Amount in Coins"
-            placeholder="e.g., 500"
-            error={errors.amount?.message}
-            disabled={isLoading}
-            type="number"
-            step={10}
-            min={10}
-            max={10000}
-          />
-        )}
+        <Input
+          {...register('amount', { valueAsNumber: true })}
+          label="Amount in Coins"
+          placeholder="e.g., 500"
+          error={errors.amount?.message}
+          disabled={isLoading}
+          type="number"
+          step={10}
+          min={10}
+          max={10000}
+        />
 
-        {error && (
+        {errorMessage && (
           <div className="mt-4">
-            <ErrorMessage message={error} />
+            <ErrorMessage message={errorMessage} />
           </div>
         )}
       </div>

@@ -6,7 +6,7 @@ import {
 } from 'react-redux';
 import { userSlice } from '../entities/user/model/slice';
 import { panelSlice } from '../features/panel/model/slice';
-import { walletSlice } from '../entities/wallet';
+import { notificationSlice } from '../shared/model';
 
 /**
  * Global Redux Store configuration
@@ -15,7 +15,7 @@ export const store = configureStore({
   reducer: {
     user: userSlice.reducer,
     panel: panelSlice.reducer,
-    wallet: walletSlice.reducer,
+    notification: notificationSlice.reducer,
   },
 });
 

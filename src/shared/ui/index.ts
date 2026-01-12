@@ -18,3 +18,4 @@ export * from './video-player/VideoPlayer';
 export * from './modal/Modal';
 export * from './progress-bar/ProgressBar';
 export * from './badge/Badge';
+export * from './toaster/Toaster';

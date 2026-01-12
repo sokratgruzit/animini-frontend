@@ -1,45 +1,44 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getAuthorWorkspace, type SeriesItem } from '../api';
+import { useQuery } from '@tanstack/react-query';
+import { getAuthorWorkspace } from '../api';
+import { VIDEO_KEYS } from '../../../shared/config/query-keys';
 
 /**
- * Hook to manage author's hierarchical content: Series -> Videos
+ * Hook to manage author's hierarchical content (Series -> Videos).
+ * Integrated with TanStack Query and uses centralized query keys.
  */
 export const useAuthorWorkspace = () => {
-  const [series, setSeries] = useState<SeriesItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [version, setVersion] = useState(0);
+  const { data, isLoading, error, refetch } = useQuery({
+    /**
+     * Using consistent key from shared config to allow
+     * external invalidation via SSE subscriber.
+     */
+    queryKey: VIDEO_KEYS.workspace(),
+    queryFn: async () => {
+      const response = await getAuthorWorkspace();
 
-  const fetchWorkspace = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await getAuthorWorkspace();
-      if (data.success) {
-        setSeries(data.items);
-        setError(null);
+      if (!response.success) {
+        throw new Error('Failed to fetch workspace data');
       }
-    } catch (err) {
-      setError('An error occurred while loading your workspace');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
 
-  /**
-   * Triggers re-fetch by bumping the version counter
-   */
-  const refresh = useCallback(() => {
-    setVersion((v) => v + 1);
-  }, []);
-
-  useEffect(() => {
-    fetchWorkspace();
-  }, [fetchWorkspace, version]);
+      return response.items;
+    },
+    /**
+     * StaleTime set to 0 ensures we always validate data
+     * when the subscriber triggers an invalidation.
+     */
+    staleTime: 0,
+  });
 
   return {
-    series, // Now returning series tree instead of flat videos
+    /**
+     * Data integrity: fallback to empty array for stable rendering
+     */
+    series: data ?? [],
     isLoading,
-    error,
-    refresh,
+    error: error instanceof Error ? error.message : null,
+    /**
+     * Exposed refetch method for manual UI triggers
+     */
+    refresh: refetch,
   };
 };

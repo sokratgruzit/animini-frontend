@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { Outlet, useLocation } from 'react-router-dom'; // Added useLocation
+import { Outlet, useLocation } from 'react-router-dom';
 import { IoMenu, IoLogOutOutline } from 'react-icons/io5';
-import { ROUTES } from '../../../../shared/config/routes'; // Assume routes are here
+import { ROUTES } from '../../../../shared/config/routes';
 import type { RootState, AppDispatch } from '../../../store';
 import {
   closePanel,
@@ -9,7 +9,11 @@ import {
   type PanelSide,
   type PanelContent as PanelContentType,
 } from '../../../../features/panel';
-import { userLogout } from '../../../../entities/user';
+import {
+  userLogout,
+  VerificationBanner,
+  selectUserData,
+} from '../../../../entities/user';
 import {
   PanelRoot,
   PanelHeader,
@@ -18,8 +22,8 @@ import {
 } from '../../../../shared/ui';
 import { MainNavigation } from '../../../../features/navigation/ui';
 import { DepositWidget } from '../../../../features/wallet/ui';
+import { cn } from '../../../../shared/lib/clsx';
 
-// Helper to determine page title based on route
 const getPageTitle = (pathname: string): string => {
   if (pathname === ROUTES.DASHBOARD) return 'Dashboard';
   if (pathname === ROUTES.WALLET) return 'My Wallet';
@@ -42,8 +46,10 @@ export const MainLayout = () => {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const panels = useSelector((state: RootState) => state.panel.panels);
+  const user = useSelector(selectUserData);
 
   const pageTitle = getPageTitle(location.pathname);
+  const isUnverified = user && !user.emailVerified;
 
   const handleClose = (side: PanelSide) => {
     dispatch(closePanel(side));
@@ -51,7 +57,7 @@ export const MainLayout = () => {
 
   return (
     <div className="relative flex min-h-screen bg-dark-base text-surface-100 overflow-hidden">
-      {/* 1. Fixed Header Bar (The "Safe Zone") */}
+      {/* 1. Fixed Header Bar */}
       <header className="fixed top-0 left-0 right-0 h-20 z-40 px-6 flex items-center bg-dark-base/60 backdrop-blur-xl border-b border-glass-border">
         <div className="flex items-center gap-6">
           <Button
@@ -108,8 +114,18 @@ export const MainLayout = () => {
       })}
 
       {/* 3. Main Content Canvas */}
-      <main className="flex-1 relative w-full h-screen overflow-auto pt-24 pb-10">
-        <Outlet />
+      <main
+        className={cn(
+          'flex-1 relative w-full h-screen overflow-auto pb-10 transition-all duration-300',
+          // FIXED: Adjusted padding for vertical mobile banner (pt-64) and desktop (pt-44)
+          isUnverified ? 'pt-64 md:pt-44' : 'pt-20'
+        )}
+      >
+        <VerificationBanner />
+
+        <div className="px-6 pt-4">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

@@ -1,23 +1,34 @@
 import { $api } from '../../../shared/api';
 
 /**
- * Response structure from the backend /refresh and /verify-email endpoints
+ * User Profile Structure reflecting the new Prisma schema
  */
-interface AuthResponse {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    emailVerified: boolean;
-    isAdmin: boolean;
-    roles: string[];
-  };
+export interface User {
+  id: number;
+  email: string;
+  name: string | null;
+  emailVerified: boolean;
+  isAdmin: boolean;
+  roles: string[];
+  avatarUrl: string | null;
+  bio: string | null;
+  settings: Record<string, any>; // JSON field from Prisma
+  balance: number;
+  reputation: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Response structure from Auth endpoints
+ */
+export interface AuthResponse {
+  user: User;
   accessToken: string;
 }
 
 /**
  * Checks current session by calling the refresh endpoint.
- * Returns both new access token and user profile data.
  */
 export const checkAuthRequest = async (): Promise<AuthResponse> => {
   const response = await $api.post<AuthResponse>('/auth/refresh');
@@ -25,16 +36,16 @@ export const checkAuthRequest = async (): Promise<AuthResponse> => {
 };
 
 /**
- * Notifies the server to terminate the session and clear cookies.
+ * FIXED: Changed to POST.
+ * Terminates session and notifies the event system.
  */
 export const logoutRequest = async () => {
-  const response = await $api.get('/auth/logout');
+  const response = await $api.post('/auth/logout');
   return response.data;
 };
 
 /**
- * FIXED: Sends the activation token to the backend verify-email endpoint.
- * Matches router.post('/verify-email') logic.
+ * Activates account via token.
  */
 export const activateRequest = async (token: string) => {
   const response = await $api.post('/auth/verify-email', { token });
@@ -42,9 +53,35 @@ export const activateRequest = async (token: string) => {
 };
 
 /**
- * Triggers a new verification email for the authenticated user.
+ * FIXED: Changed to POST.
+ * Triggers a new verification email.
  */
 export const resendEmailRequest = async () => {
-  const response = await $api.get('/auth/resend-email');
+  const response = await $api.post('/auth/resend-email');
+  return response.data;
+};
+
+/**
+ * NEW: Dynamic profile update.
+ * Allows updating name, avatar, bio, and settings JSON.
+ */
+export const updateProfileRequest = async (
+  data: Partial<User>
+): Promise<User> => {
+  const response = await $api.patch<User>('/auth/profile', data);
+  return response.data;
+};
+
+/**
+ * NEW: Change user password.
+ */
+export const changePasswordRequest = async (
+  oldPassword: string,
+  newPassword: string
+) => {
+  const response = await $api.post('/auth/change-password', {
+    oldPassword,
+    newPassword,
+  });
   return response.data;
 };

@@ -4,31 +4,32 @@ import { AnimatePresence } from 'framer-motion';
 
 import { type RootState, type AppDispatch } from './store';
 import { AppRouter } from './providers/router';
-/**
- * Import checkAuth and resetUserState.
- * resetUserState is used for immediate local cleanup.
- */
 import { checkAuth, resetUserState } from '../entities/user';
-
-import { LoadingScreen } from '../shared/ui';
+import { useEventSubscriber } from '../shared/lib/hooks/useEventSubscriber';
+import { LoadingScreen, Toaster } from '../shared/ui';
 
 /**
  * Main Application Shell.
- * Orchestrates global initialization, 3D background, and routing.
+ * Orchestrates global initialization, real-time sync, and routing.
  */
 const App = () => {
   const dispatch = useDispatch<AppDispatch>();
   const isAppReady = useSelector((state: RootState) => state.user.isAppReady);
 
+  /**
+   * 1. Establish real-time connection with the server.
+   * This hook listens for global events (Auth updates, Wallet, etc.)
+   */
+  useEventSubscriber();
+
   useEffect(() => {
     /**
-     * Real auth check on app initialization.
+     * 2. Real auth check on app initialization.
      */
     dispatch(checkAuth());
 
     /**
-     * Global listener for 401 Unauthorized status from API.
-     * Triggers synchronous local state reset to sync with server session expiration.
+     * 3. Global listener for 401 Unauthorized status from API.
      */
     const handleUnauthorized = () => {
       dispatch(resetUserState());
@@ -48,11 +49,14 @@ const App = () => {
         {!isAppReady && <LoadingScreen key="loader" />}
       </AnimatePresence>
 
-      {/*
-        Routing logic kicks in only when the app is initialized.
-        AppRouter handles switching between AuthPage and Dashboard.
-      */}
+      {/* Main App content */}
       {isAppReady && <AppRouter />}
+
+      {/* 
+         Global Notification System.
+         Fixed position at the bottom-right via shared styles.
+      */}
+      <Toaster />
     </>
   );
 };

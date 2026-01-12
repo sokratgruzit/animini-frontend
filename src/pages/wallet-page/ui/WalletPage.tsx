@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { AnimatePresence } from 'framer-motion';
 import {
   IoArrowUpCircleOutline,
@@ -12,20 +12,35 @@ import { Table, THead, TBody, TH, TR } from '../../../shared/ui/table/Table';
 import { TransactionRow } from '../../../entities/wallet/ui/TransactionRow';
 import { WALLET_COLUMNS } from '../../../shared/config/columns';
 import {
-  getWalletData,
-  fetchTransactions,
-  checkPaymentStatus,
-} from '../../../entities/wallet/model/slice';
+  useWallet,
+  useTransactions,
+  useCheckPaymentStatus,
+} from '../../../entities/wallet';
 import { togglePanel } from '../../../features/panel';
-import type { RootState, AppDispatch } from '../../../app/store';
+import type { AppDispatch } from '../../../app/store';
 
 const WalletPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
 
-  const { balance, reputation, transactions, isLoading } = useSelector(
-    (state: RootState) => state.wallet
-  );
+  /**
+   * Server State management via React Query hooks
+   */
+  const { balance, reputation, isLoading: isWalletLoading } = useWallet();
+
+  const {
+    transactions,
+    isLoading: isTxLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useTransactions();
+
+  /**
+   * Mutation for manual payment verification
+   */
+  const { mutate: checkStatus, isPending: isCheckingStatus } =
+    useCheckPaymentStatus();
 
   const activeColumns = useMemo(() => {
     return WALLET_COLUMNS.filter((col) => col.priority <= 4).map(
@@ -34,29 +49,26 @@ const WalletPage = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(getWalletData());
-    dispatch(fetchTransactions(true));
-
     const pendingId = sessionStorage.getItem('pendingTransactionId');
+
     if (pendingId) {
       setVerifyingId(pendingId);
-      sessionStorage.removeItem('pendingTransactionId');
 
-      dispatch(checkPaymentStatus(pendingId))
-        .unwrap()
-        .finally(() => setVerifyingId(null));
+      checkStatus(pendingId, {
+        onSettled: () => setVerifyingId(null),
+      });
     }
-  }, [dispatch]);
+  }, [checkStatus]);
 
+  /**
+   * Infinite scroll handler using React Query helpers
+   */
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    const isAtBottom = scrollHeight - scrollTop <= clientHeight + 100;
 
-    if (
-      scrollHeight - scrollTop <= clientHeight + 50 &&
-      transactions.hasMore &&
-      !isLoading
-    ) {
-      dispatch(fetchTransactions(false));
+    if (isAtBottom && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
   };
 
@@ -64,7 +76,11 @@ const WalletPage = () => {
     dispatch(togglePanel({ side: 'right', content: 'wallet' }));
   };
 
-  const showOverlay = !!verifyingId && isLoading;
+  /**
+   * Combined loading condition for the initial verification overlay
+   */
+  const showOverlay =
+    !!verifyingId && (isCheckingStatus || isTxLoading || isWalletLoading);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden pointer-events-auto bg-dark-base">
@@ -72,10 +88,8 @@ const WalletPage = () => {
         {showOverlay && <LoadingScreen message="Verifying Transaction..." />}
       </AnimatePresence>
 
-      {/* 1. Header Section - Cleaned from manual offsets */}
-      <div className="px-6 md:px-8 shrink-0">
+      <div className="shrink-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Removed md:ml-16 as MainLayout now handles the safe zone */}
           <div className="flex flex-wrap items-center gap-3 w-full order-2 md:order-1 md:w-auto">
             <StatCard
               title="Balance"
@@ -113,12 +127,12 @@ const WalletPage = () => {
         </div>
       </div>
 
-      <div className="flex-1 mt-8 px-6 md:px-8 pb-8 min-h-0">
+      <div className="flex-1 mt-8 pb-8 min-h-0">
         <div className="h-full panel-glass border-glass-border overflow-hidden flex flex-col shadow-2xl">
           <div className="px-6 py-4 border-b border-glass-border flex justify-between items-center bg-glass-bg/50 shrink-0">
             <h3 className="text-label">Transaction History</h3>
             <span className="text-xs bg-brand-primary/20 text-brand-primary px-2 py-1 rounded tracking-widest">
-              {transactions.items.length} RECORDS
+              {transactions.length} RECORDS
             </span>
           </div>
 
@@ -139,7 +153,7 @@ const WalletPage = () => {
                 </TR>
               </THead>
               <TBody>
-                {transactions.items.map((txn) => (
+                {transactions.map((txn) => (
                   <TransactionRow
                     key={txn.id}
                     transaction={txn}
@@ -149,13 +163,14 @@ const WalletPage = () => {
               </TBody>
             </Table>
 
-            {isLoading && !showOverlay && (
-              <div className="p-4 text-center text-micro text-surface-300 animate-pulse uppercase tracking-super-wide">
-                Syncing with blockchain...
-              </div>
-            )}
+            {(isTxLoading || isFetchingNextPage || isCheckingStatus) &&
+              !showOverlay && (
+                <div className="p-4 text-center text-micro text-surface-300 animate-pulse uppercase tracking-super-wide">
+                  Syncing with blockchain...
+                </div>
+              )}
 
-            {!transactions.hasMore && transactions.items.length > 0 && (
+            {!hasNextPage && transactions.length > 0 && (
               <div className="p-8 text-center text-label opacity-40">
                 End of history
               </div>
