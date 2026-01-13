@@ -11,6 +11,8 @@ import {
   WalletPage,
   AuthorPage,
   AuthorSeriesDetailsPage,
+  DiscoverPage,
+  PublicSeriesPage, // Added
 } from '../../../pages';
 import { type RootState } from '../../store';
 import { ROUTES } from '../../../shared/config/routes';
@@ -42,6 +44,16 @@ export const AppRouter = () => {
           path: ROUTES.DASHBOARD,
           element: <DashboardPage />,
         },
+        // NEW: Public Discover Feed
+        {
+          path: ROUTES.DISCOVER,
+          element: <DiscoverPage />,
+        },
+        // NEW: Public Series View (Full Player Implementation)
+        {
+          path: ROUTES.PUBLIC_SERIES_DETAILS,
+          element: <PublicSeriesPage />,
+        },
         {
           path: ROUTES.WALLET,
           element: <WalletPage />,
@@ -53,7 +65,6 @@ export const AppRouter = () => {
               path: ROUTES.AUTHOR,
               element: <AuthorPage />,
             },
-            // Added: Series Management Page
             {
               path: ROUTES.AUTHOR_SERIES_DETAILS,
               element: <AuthorSeriesDetailsPage />,

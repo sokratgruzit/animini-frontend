@@ -1,5 +1,6 @@
 import {
   IoGridOutline,
+  IoCompassOutline,
   IoWalletOutline,
   IoSettingsOutline,
   IoCreateOutline,
@@ -21,6 +22,12 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
     title: 'Dashboard',
     path: ROUTES.DASHBOARD,
     icon: IoGridOutline,
+  },
+  {
+    id: 'discover',
+    title: 'Discover',
+    path: ROUTES.DISCOVER,
+    icon: IoCompassOutline,
   },
   {
     id: 'author',

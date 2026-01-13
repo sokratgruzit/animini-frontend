@@ -43,7 +43,7 @@ const AuthorSeriesDetailsPage = () => {
   const isUploadLocked = isEmailUnverified || hasActiveFunding;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto py-8 space-y-8">
       <header className="flex items-center gap-6">
         <Button
           variant="secondary"
