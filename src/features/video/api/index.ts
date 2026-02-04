@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { $api } from '../../../shared/api';
+import { type GenreType } from '../../../shared/config/genres';
 import {
   type CreateVideoInput,
   type CreateSeriesInput,
@@ -28,21 +29,18 @@ export interface SeriesItem {
   title: string;
   description?: string;
   coverUrl?: string;
+  genre: GenreType;
   totalEarnings: number;
   videos: VideoItem[];
   createdAt: string;
 }
 
-/**
- * AI2UI Optimized Snapshot Interface
- * This is what the public discover feed returns.
- */
 export interface PublicSeriesSnapshot {
   id: string;
   title: string;
   description: string | null;
   coverUrl: string | null;
-  tags: string[];
+  genre: GenreType;
   totalEarnings: number;
   author: {
     name: string;
@@ -72,26 +70,22 @@ interface GetAuthorWorkspaceResponse {
 }
 
 /**
- * PUBLIC: Fetch the discover feed with pagination and filters
+ * PUBLIC: Fetch the discover feed
  */
 export const getPublicFeed = async (params: {
   cursor?: string;
   limit?: number;
-  tags?: string[];
+  genre?: GenreType;
   type?: 'hot' | 'new' | 'completed' | 'most_funded';
 }): Promise<GetPublicFeedResponse> => {
   const { data } = await $api.get<GetPublicFeedResponse>('/videos/discover', {
-    params: {
-      ...params,
-      // Convert array to comma-separated string for the backend controller
-      tags: params.tags?.join(','),
-    },
+    params,
   });
   return data;
 };
 
 /**
- * Fetch full author workspace (Series with nested Videos)
+ * Fetch full author workspace
  */
 export const getAuthorWorkspace =
   async (): Promise<GetAuthorWorkspaceResponse> => {
@@ -101,7 +95,7 @@ export const getAuthorWorkspace =
   };
 
 /**
- * 1. Request a signed upload URL from backend
+ * 1. Request a signed upload URL
  */
 export const getUploadUrl = async (payload: UploadRequestInput) => {
   const { data } = await $api.post('/videos/upload-url', payload);
@@ -109,7 +103,7 @@ export const getUploadUrl = async (payload: UploadRequestInput) => {
 };
 
 /**
- * 2. Upload file directly to Supabase storage
+ * 2. Upload file directly to storage
  */
 export const uploadFileToStorage = async (
   url: string,
@@ -136,7 +130,7 @@ export const createSeries = async (payload: CreateSeriesInput) => {
 };
 
 /**
- * 4. Finalize video (episode) creation in database
+ * 4. Finalize video creation
  */
 export const createVideo = async (payload: CreateVideoInput) => {
   const { data } = await $api.post('/videos', payload);
@@ -144,11 +138,42 @@ export const createVideo = async (payload: CreateVideoInput) => {
 };
 
 /**
- * Fetch a single series with its episodes by ID
+ * Fetch a single series details
  */
 export const getSeriesDetails = async (
   id: string
 ): Promise<{ success: boolean; data: SeriesItem }> => {
   const { data } = await $api.get(`/videos/series/${id}`);
+  return data;
+};
+
+/**
+ * INTERACTION: Cast a vote for a video (Paid)
+ */
+export const voteForVideo = async (payload: {
+  videoId: string;
+  amount: number;
+}) => {
+  const { data } = await $api.post('/interactions/vote-video', payload);
+  return data;
+};
+
+/**
+ * INTERACTION: Post a critic review
+ */
+export const postReview = async (payload: {
+  videoId: string;
+  content: string;
+  type: 'POSITIVE' | 'NEGATIVE';
+}) => {
+  const { data } = await $api.post('/interactions/review', payload);
+  return data;
+};
+
+/**
+ * INTERACTION: Vote for a review (Paid)
+ */
+export const voteForReview = async (payload: { reviewId: string }) => {
+  const { data } = await $api.post('/interactions/vote-review', payload);
   return data;
 };

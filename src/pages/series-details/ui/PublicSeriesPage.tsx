@@ -1,6 +1,7 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { useSeriesDetails } from '../../../features/video/model/use-series-details';
+import { useSeriesDetails, useVoteVideo } from '../../../features/video/model';
+import { ReviewSection } from '../../../features/interactions/ui';
 import {
   Badge,
   Button,
@@ -8,36 +9,75 @@ import {
   LoadingScreen,
   ErrorMessage,
 } from '../../../shared/ui';
+import { GENRE_METADATA, type GenreType } from '../../../shared/config/genres';
+import { ROUTES } from '../../../shared/config/routes';
 import {
   IoPlayOutline,
   IoLockClosedOutline,
   IoDiamondOutline,
   IoStatsChartOutline,
   IoInformationCircleOutline,
+  IoShapesOutline,
+  IoArrowBackOutline,
 } from 'react-icons/io5';
 import { cn } from '../../../shared/lib/clsx';
 
 export const PublicSeriesPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { series, isLoading, error } = useSeriesDetails(id || '');
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+
+  const { mutate: vote, isPending: isVoting } = useVoteVideo(id);
 
   if (isLoading) return <LoadingScreen message="Initializing Neural Link..." />;
   if (error || !series)
     return <ErrorMessage message="Failed to sync with series data" />;
 
-  // Find the video to play: either the clicked one, or the latest released one
   const currentVideo =
     series.videos.find((v) => v.id === activeVideoId) ||
     series.videos.find((v) => v.isReleased) ||
     series.videos[0];
 
+  const handleVote = () => {
+    if (!currentVideo) return;
+    vote({
+      videoId: currentVideo.id,
+      amount: 10,
+    });
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-10 pb-20">
+      {/* HEADER WITH BACK BUTTON */}
+      <header className="flex items-center gap-6">
+        <Button
+          variant="secondary"
+          onClick={() => navigate(ROUTES.DISCOVER)}
+          className="w-12 h-12 p-0 flex items-center justify-center rounded-xl bg-glass-bg border-glass-border hover:border-brand-primary/50 transition-all"
+        >
+          <IoArrowBackOutline size={24} />
+        </Button>
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-black text-surface-100 tracking-tight uppercase">
+              {series.title}
+            </h1>
+            <Badge variant="primary" icon={<IoShapesOutline size={12} />}>
+              {GENRE_METADATA[series.genre as GenreType]?.label || series.genre}
+            </Badge>
+          </div>
+          <p className="text-xs font-bold text-surface-400 uppercase tracking-widest px-0.5">
+            {series.description || 'Global Protocol Active'}
+          </p>
+        </div>
+      </header>
+
       {/* 1. CINEMATIC PLAYER LAYER */}
       <section className="relative group aspect-video w-full overflow-hidden rounded-3xl border border-glass-border bg-black shadow-2xl">
         {currentVideo?.isReleased || currentVideo?.status === 'PUBLISHED' ? (
           <video
+            key={currentVideo.id}
             src={currentVideo.url}
             controls
             className="w-full h-full object-contain"
@@ -123,7 +163,10 @@ export const PublicSeriesPage = () => {
                           <div
                             className="h-full bg-brand-primary"
                             style={{
-                              width: `${(video.collectedFunds / video.votesRequired) * 100}%`,
+                              width: `${
+                                (video.collectedFunds / video.votesRequired) *
+                                100
+                              }%`,
                             }}
                           />
                         </div>
@@ -185,6 +228,8 @@ export const PublicSeriesPage = () => {
               <Button
                 variant="primary"
                 className="w-full py-5 text-[11px] font-black uppercase tracking-[0.4em] shadow-brand-glow"
+                onClick={handleVote}
+                isLoading={isVoting}
                 disabled={
                   !currentVideo ||
                   (!currentVideo.isReleased &&
@@ -198,6 +243,13 @@ export const PublicSeriesPage = () => {
           </div>
         </aside>
       </div>
+
+      {/* 4. INTERACTION LAYER: EXPERT REVIEWS */}
+      {currentVideo && (
+        <section className="mt-20 pt-20 border-t border-glass-border">
+          <ReviewSection videoId={currentVideo.id} seriesId={series.id} />
+        </section>
+      )}
     </div>
   );
 };

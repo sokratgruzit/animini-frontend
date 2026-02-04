@@ -4,15 +4,16 @@ import {
 } from '@tanstack/react-query';
 import { getPublicFeed, type PublicSeriesSnapshot } from '../api';
 import { VIDEO_KEYS } from '../../../shared/config/query-keys';
+import { type GenreType } from '../../../shared/config/genres';
 
 interface UsePublicFeedProps {
-  tags?: string[];
+  genre?: GenreType; // Changed: replaced tags with single genre
   type?: 'hot' | 'new' | 'completed' | 'most_funded';
   limit?: number;
 }
 
 export const usePublicFeed = ({
-  tags = [],
+  genre, // Default to undefined to show all genres
   type = 'new',
   limit = 10,
 }: UsePublicFeedProps = {}) => {
@@ -25,7 +26,10 @@ export const usePublicFeed = ({
     isError,
     refetch,
   } = useInfiniteQuery({
-    queryKey: [...VIDEO_KEYS.details('public-feed'), { tags, type, limit }],
+    /**
+     * Updated queryKey: using genre instead of tags for cache invalidation
+     */
+    queryKey: [...VIDEO_KEYS.details('public-feed'), { genre, type, limit }],
 
     /**
      * Explicitly typing context to help TS resolve pageParam as string | undefined
@@ -34,7 +38,7 @@ export const usePublicFeed = ({
       getPublicFeed({
         cursor: pageParam,
         limit,
-        tags,
+        genre,
         type,
       }),
 

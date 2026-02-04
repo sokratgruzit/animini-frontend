@@ -57,12 +57,18 @@ export const EpisodeList = ({ videos, isLoading, error }: EpisodeListProps) => {
       {videos.map((video, index) => {
         const canWatch = isAuthor || video.isReleased;
 
+        const displayStatus = video.isReleased
+          ? 'RELEASED'
+          : video.status === 'MODERATION'
+            ? 'MODERATION'
+            : 'FUNDING';
+
         return (
           <VideoStatsCard
             key={video.id}
             title={video.title}
             url={video.url}
-            status={video.isReleased ? 'RELEASED' : 'FUNDING'}
+            status={displayStatus}
             index={index + 1}
             collected={video.collectedFunds}
             required={video.votesRequired}

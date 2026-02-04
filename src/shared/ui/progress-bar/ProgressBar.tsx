@@ -4,7 +4,7 @@ interface ProgressBarProps {
   progress: number;
   label?: string;
   subLabel?: string;
-  variant?: 'primary' | 'success';
+  variant?: 'primary' | 'success' | 'danger' | 'glass';
   size?: 'sm' | 'md';
   className?: string;
   showInfo?: boolean;
@@ -32,6 +32,8 @@ export const ProgressBar = ({
   const glows = {
     primary: 'shadow-[0_0_12px_rgba(99,102,241,0.6)] bg-brand-primary',
     success: 'shadow-[0_0_12px_rgba(34,197,94,0.6)] bg-green-500',
+    danger: 'shadow-[0_0_12px_rgba(239,68,68,0.6)] bg-brand-danger',
+    glass: 'bg-surface-600',
   };
 
   return (

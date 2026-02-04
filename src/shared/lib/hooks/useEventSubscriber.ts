@@ -9,7 +9,7 @@ import { type RootState } from '../../../app/store';
 
 /**
  * Global SSE subscriber that bridges Backend events with React Query and Redux.
- * Ensures UI updates in real-time without page reloads.
+ * Updated with Interaction (War) logic.
  */
 export const useEventSubscriber = () => {
   const dispatch = useDispatch();
@@ -95,15 +95,10 @@ export const useEventSubscriber = () => {
               })
             );
 
-            // Invalidate workspace to show new video in the tree
             queryClient.invalidateQueries({ queryKey: VIDEO_KEYS.workspace() });
-
-            // Invalidate transactions to show the creation fee
             queryClient.invalidateQueries({
               queryKey: QUERY_KEYS.wallet.transactions(),
             });
-
-            // Invalidate balance to ensure it matches the fee deduction
             queryClient.invalidateQueries({
               queryKey: QUERY_KEYS.wallet.balance(),
             });
@@ -117,6 +112,52 @@ export const useEventSubscriber = () => {
 
           case 'SERIES_CREATED':
             queryClient.invalidateQueries({ queryKey: VIDEO_KEYS.workspace() });
+            break;
+
+          // --- Interaction & War Events (NEW) ---
+          case 'NEW_REVIEW_POSTED':
+            queryClient.invalidateQueries({
+              queryKey: ['interactions', 'reviews', data.videoId],
+            });
+            break;
+
+          case 'REVIEW_VOTE_UPDATED':
+            queryClient.invalidateQueries({
+              queryKey: ['interactions', 'reviews', data.videoId],
+            });
+            break;
+
+          case 'REVIEW_CANCELED':
+            dispatch(
+              addNotification({
+                type: 'info',
+                message: 'A review was canceled by social consensus.',
+              })
+            );
+            queryClient.invalidateQueries({
+              queryKey: ['interactions', 'reviews', data.videoId],
+            });
+            break;
+
+          case 'VIDEO_FUNDS_STOLEN':
+            dispatch(
+              addNotification({
+                type: 'error',
+                message: `CRITICAL: ${data.criticName} drained ${data.impactAmount} coins from this episode!`,
+              })
+            );
+            // Refresh video progress bar immediately
+            queryClient.invalidateQueries({
+              queryKey: VIDEO_KEYS.details(data.videoId),
+            });
+            break;
+
+          case 'AUTHOR_REPUTATION_BOOSTED':
+            // If the current user is the author, their balance/rep is updated via BALANCE_UPDATED
+            // But we invalidate details to show updated stats to everyone
+            queryClient.invalidateQueries({
+              queryKey: VIDEO_KEYS.details(data.videoId),
+            });
             break;
 
           // --- Auth Events ---

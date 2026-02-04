@@ -4,6 +4,11 @@ import { usePublicFeed } from '../../../features/video/model';
 import { Badge, Button, ProgressBar } from '../../../shared/ui';
 import { ROUTES, getRouteWithId } from '../../../shared/config/routes';
 import {
+  GENRE_OPTIONS,
+  GENRE_METADATA,
+  type GenreType,
+} from '../../../shared/config/genres';
+import {
   IoFlashOutline,
   IoTimeOutline,
   IoCheckmarkDoneOutline,
@@ -23,19 +28,19 @@ export const DiscoverPage = () => {
   const navigate = useNavigate();
   const [selectedType, setSelectedType] =
     useState<(typeof FEED_TYPES)[number]['id']>('new');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  // Changed: Single genre selection instead of tags array
+  const [selectedGenre, setSelectedGenre] = useState<GenreType | null>(null);
 
   const { items, hasNextPage, isFetchingNextPage, fetchNextPage } =
     usePublicFeed({
       type: selectedType,
-      tags: selectedTags,
+      genre: selectedGenre || undefined, // Updated to pass genre
       limit: 12,
     });
 
-  const toggleTag = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
+  const toggleGenre = (genre: GenreType) => {
+    setSelectedGenre((prev) => (prev === genre ? null : genre));
   };
 
   const handleCardClick = (id: string) => {
@@ -83,35 +88,37 @@ export const DiscoverPage = () => {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              {selectedTags.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {GENRE_OPTIONS.map((option) => (
+                  <Button
+                    key={option.value}
+                    onClick={() => toggleGenre(option.value)}
+                    variant={
+                      selectedGenre === option.value ? 'primary' : 'outline'
+                    }
+                    className={cn(
+                      'w-fit h-10 px-4 text-[9px] font-black uppercase tracking-widest transition-all duration-300',
+                      selectedGenre === option.value
+                        ? 'shadow-brand-glow scale-105'
+                        : 'border-glass-border text-surface-500 hover:text-surface-100 hover:bg-white/5'
+                    )}
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
+
+              {selectedGenre && (
                 <>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedTags.map((tag) => (
-                      <Badge
-                        key={tag}
-                        variant="primary"
-                        className="h-10 px-4 border-brand-primary/40 bg-brand-primary/5 hover:bg-brand-danger/20 hover:border-brand-danger/50"
-                        onClick={() => toggleTag(tag)}
-                      >
-                        <span className="opacity-40 mr-1">#</span>
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
                   <div className="w-px h-6 bg-glass-border mx-2 hidden sm:block" />
                   <Button
                     variant="outline"
-                    onClick={() => setSelectedTags([])}
+                    onClick={() => setSelectedGenre(null)}
                     className="h-10 px-6 border-brand-danger/20 text-brand-danger text-[9px] font-black uppercase tracking-widest hover:bg-brand-danger/10"
                   >
                     Purge Matrix
                   </Button>
                 </>
-              ) : (
-                <p className="text-[11px] font-bold text-surface-500 uppercase tracking-super-wide animate-pulse">
-                  Scanning for specific tags... Select a tag in the cards below
-                  to filter results.
-                </p>
               )}
             </div>
           </div>
@@ -146,6 +153,14 @@ export const DiscoverPage = () => {
                 >
                   {series.stats.releasedCount}/{series.stats.totalEpisodes} EP
                 </Badge>
+              </div>
+
+              {/* Badge for Genre on card */}
+              <div className="absolute bottom-4 right-4">
+                <div className="px-2 py-1 bg-brand-primary/20 backdrop-blur-md border border-brand-primary/30 rounded text-[8px] font-black text-brand-primary uppercase tracking-tighter">
+                  {GENRE_METADATA[series.genre as GenreType]?.label ||
+                    series.genre}
+                </div>
               </div>
             </div>
 
@@ -193,23 +208,22 @@ export const DiscoverPage = () => {
                   />
 
                   <div className="flex flex-wrap gap-2 pt-2">
-                    {series.tags.map((tag) => (
-                      <button
-                        key={tag}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleTag(tag);
-                        }}
-                        className={cn(
-                          'text-[9px] font-black uppercase tracking-tighter transition-all',
-                          selectedTags.includes(tag)
-                            ? 'text-brand-primary'
-                            : 'text-surface-600 hover:text-surface-300'
-                        )}
-                      >
-                        #{tag}
-                      </button>
-                    ))}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleGenre(series.genre as GenreType);
+                      }}
+                      className={cn(
+                        'text-[9px] font-black uppercase tracking-tighter transition-all',
+                        selectedGenre === series.genre
+                          ? 'text-brand-primary'
+                          : 'text-surface-600 hover:text-surface-300'
+                      )}
+                    >
+                      #
+                      {GENRE_METADATA[series.genre as GenreType]?.label ||
+                        series.genre}
+                    </button>
                   </div>
                 </div>
               )}

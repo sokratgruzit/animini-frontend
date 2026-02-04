@@ -5,11 +5,13 @@ import {
   IoWalletOutline,
   IoLockClosedOutline,
   IoMailUnreadOutline,
+  IoShapesOutline, // Added for Genre icon
 } from 'react-icons/io5';
 import { Button, Badge } from '../../../shared/ui';
 import { CreateVideoForm, EpisodeList } from '../../../features/video/ui';
 import { useSeriesDetails } from '../../../features/video/model/use-series-details';
 import { ROUTES } from '../../../shared/config/routes';
+import { GENRE_METADATA, type GenreType } from '../../../shared/config/genres'; // Added Genres Config
 import { type RootState } from '../../../app/store';
 
 const AuthorSeriesDetailsPage = () => {
@@ -21,7 +23,6 @@ const AuthorSeriesDetailsPage = () => {
 
   /**
    * 2. Accessing user data correctly from Redux state.
-   * Based on your slice, the user object is inside the 'data' field.
    */
   const userData = useSelector((state: RootState) => state.user.data);
 
@@ -35,7 +36,7 @@ const AuthorSeriesDetailsPage = () => {
 
   /**
    * BUSINESS LOGIC:
-   * - Block if email is not verified (checking userData?.emailVerified).
+   * - Block if email is not verified.
    * - Block if there's any video that hasn't been released yet (active funding).
    */
   const isEmailUnverified = userData?.emailVerified === false;
@@ -65,10 +66,23 @@ const AuthorSeriesDetailsPage = () => {
               </Badge>
             )}
           </div>
-          <p className="text-xs font-bold text-surface-400 uppercase tracking-widest px-0.5">
-            {series?.description ||
-              'Manage your production episodes and funding'}
-          </p>
+
+          <div className="flex items-center gap-4 px-0.5">
+            {/* Genre display added here */}
+            {!isLoading && series && (
+              <div className="flex items-center gap-1.5 text-brand-primary">
+                <IoShapesOutline size={14} />
+                <span className="text-[10px] font-black uppercase tracking-widest">
+                  {GENRE_METADATA[series.genre as GenreType]?.label ||
+                    series.genre}
+                </span>
+              </div>
+            )}
+            <p className="text-xs font-bold text-surface-400 uppercase tracking-widest">
+              {series?.description ||
+                'Manage your production episodes and funding'}
+            </p>
+          </div>
         </div>
       </header>
 
@@ -79,7 +93,6 @@ const AuthorSeriesDetailsPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
           <div className="h-full">
-            {/* Conditional Rendering based on verification and funding status */}
             {isUploadLocked && !isLoading ? (
               <div className="panel-glass p-8 h-full flex flex-col items-center justify-center text-center space-y-4 border-dashed border-brand-primary/20">
                 <div className="w-16 h-16 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary">
